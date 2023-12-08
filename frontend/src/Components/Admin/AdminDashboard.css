@@ -1,0 +1,887 @@
+.admin-dashboard {
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.admin-dashboard .overlap-wrapper {
+  height: 1024px;
+  overflow: hidden;
+  width: 1447px;
+}
+
+.admin-dashboard .overlap {
+  background-color: #ffffff;
+  height: 1078px;
+  left: -152px;
+  position: relative;
+  width: 1667px;
+}
+
+.admin-dashboard .group {
+  -webkit-backdrop-filter: blur(20px) brightness(100%);
+  backdrop-filter: blur(20px) brightness(100%);
+  height: 883px;
+  left: 201px;
+  position: absolute;
+  top: 114px;
+  width: 275px;
+}
+
+.admin-dashboard .div {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 883px;
+  opacity: 0.9;
+  position: relative;
+}
+
+.admin-dashboard .overlap-group {
+  height: 766px;
+  left: 20px;
+  position: absolute;
+  top: 59px;
+  width: 250px;
+}
+
+.admin-dashboard .group-2 {
+  height: 339px;
+  left: 24px;
+  position: absolute;
+  top: 0;
+  width: 226px;
+}
+
+.admin-dashboard .overlap-group-wrapper {
+  height: 80px;
+  left: 0;
+  position: absolute;
+  top: 259px;
+  width: 212px;
+}
+
+.admin-dashboard .overlap-group-2 {
+  height: 80px;
+  position: relative;
+  width: 208px;
+}
+
+.admin-dashboard .standard {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 24px;
+  font-weight: 600;
+  left: 0;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 34px;
+  width: 208px;
+}
+
+.admin-dashboard .roll {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 24px;
+  font-weight: 600;
+  left: 0;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 208px;
+}
+
+.admin-dashboard .student-name {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 26px;
+  font-weight: 700;
+  left: 16px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 196px;
+  width: 208px;
+}
+
+.admin-dashboard .admin-profile {
+  height: 171px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 188px;
+}
+
+.admin-dashboard .group-3 {
+  height: 442px;
+  left: 0;
+  position: absolute;
+  top: 324px;
+  width: 232px;
+}
+
+.admin-dashboard .group-4 {
+  height: 42px;
+  left: 0;
+  position: absolute;
+  top: 251px;
+  width: 118px;
+}
+
+.admin-dashboard .fees-icon {
+  height: 27px;
+  left: 0;
+  mix-blend-mode: darken;
+  position: absolute;
+  top: 8px;
+  width: 49px;
+}
+
+.admin-dashboard .text-wrapper {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 59px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 57px;
+}
+
+.admin-dashboard .group-5 {
+  height: 44px;
+  left: 0;
+  position: absolute;
+  top: 346px;
+  width: 234px;
+}
+
+.admin-dashboard .text-wrapper-2 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 59px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 173px;
+}
+
+.admin-dashboard .group-6 {
+  height: 44px;
+  left: 0;
+  position: absolute;
+  top: 398px;
+  width: 227px;
+}
+
+.admin-dashboard .text-wrapper-3 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 52px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 173px;
+}
+
+.admin-dashboard .group-7 {
+  height: 42px;
+  left: 9px;
+  position: absolute;
+  top: 199px;
+  width: 127px;
+}
+
+.admin-dashboard .result-icon {
+  height: 27px;
+  left: 0;
+  mix-blend-mode: darken;
+  position: absolute;
+  top: 8px;
+  width: 30px;
+}
+
+.admin-dashboard .text-wrapper-4 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 48px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 77px;
+}
+
+.admin-dashboard .group-8 {
+  height: 42px;
+  left: 5px;
+  position: absolute;
+  top: 147px;
+  width: 189px;
+}
+
+.admin-dashboard .attendence-icon {
+  height: 42px;
+  left: 0;
+  mix-blend-mode: darken;
+  position: absolute;
+  top: 0;
+  width: 31px;
+}
+
+.admin-dashboard .text-wrapper-5 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 50px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 136px;
+}
+
+.admin-dashboard .group-wrapper {
+  height: 42px;
+  left: 5px;
+  position: absolute;
+  top: 97px;
+  width: 186px;
+}
+
+.admin-dashboard .group-9 {
+  height: 42px;
+  position: relative;
+  width: 188px;
+}
+
+.admin-dashboard .notification {
+  height: 28px;
+  left: 0;
+  position: absolute;
+  top: 8px;
+  width: 26px;
+}
+
+.admin-dashboard .text-wrapper-6 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 48px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 137px;
+}
+
+.admin-dashboard .group-10 {
+  height: 42px;
+  left: 5px;
+  position: absolute;
+  top: 296px;
+  width: 149px;
+}
+
+.admin-dashboard .messages-interface {
+  height: 32px;
+  left: 0;
+  position: absolute;
+  top: 8px;
+  width: 37px;
+}
+
+.admin-dashboard .text-wrapper-7 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 52px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 95px;
+}
+
+.admin-dashboard .group-11 {
+  height: 42px;
+  left: 9px;
+  position: absolute;
+  top: 55px;
+  width: 170px;
+}
+
+.admin-dashboard .profile-interface {
+  height: 20px;
+  left: 0;
+  position: absolute;
+  top: 12px;
+  width: 25px;
+}
+
+.admin-dashboard .text-wrapper-8 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 47px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 121px;
+}
+
+.admin-dashboard .group-12 {
+  height: 42px;
+  left: 9px;
+  position: absolute;
+  top: 0;
+  width: 180px;
+}
+
+.admin-dashboard .dashboard-interface {
+  height: 20px;
+  left: 0;
+  position: absolute;
+  top: 14px;
+  width: 25px;
+}
+
+.admin-dashboard .text-wrapper-9 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 23px;
+  font-weight: 600;
+  left: 48px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 130px;
+}
+
+.admin-dashboard .logout-btn {
+  height: 32px;
+  left: 42px;
+  position: absolute;
+  top: 6px;
+  width: 166px;
+}
+
+.admin-dashboard .overlap-2 {
+  height: 21px;
+  left: 0;
+  position: absolute;
+  top: 11px;
+  width: 39px;
+}
+
+.admin-dashboard .vector {
+  height: 21px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 27px;
+}
+
+.admin-dashboard .img {
+  height: 9px;
+  left: 19px;
+  position: absolute;
+  top: 3px;
+  width: 20px;
+}
+
+.admin-dashboard .text-wrapper-10 {
+  color: #000000;
+  font-family: "Cairo-SemiBold", Helvetica;
+  font-size: 20px;
+  font-weight: 600;
+  left: 66px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 98px;
+}
+
+.admin-dashboard .div-wrapper {
+  height: 79px;
+  left: 155px;
+  position: absolute;
+  top: 17px;
+  width: 1417px;
+}
+
+.admin-dashboard .overlap-3 {
+  height: 79px;
+  position: relative;
+}
+
+.admin-dashboard .rectangle {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border: 2px solid;
+  border-color: #B6419C, #FF7B58;
+  border-image: linear-gradient(to bottom, rgb(245.29, 245.29, 245.29), rgb(255, 123, 88)) 1;
+  border-radius: 9.92px;
+  height: 79px;
+  left: 8px;
+  position: absolute;
+  top: 0;
+  width: 1409px;
+}
+
+.admin-dashboard .group-13 {
+  height: 70px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 1389px;
+}
+
+.admin-dashboard .group-14 {
+  background-image: url(../img/back.png);
+  background-size: 100% 100%;
+  height: 51px;
+  left: 1198px;
+  position: absolute;
+  top: 10px;
+  width: 41px;
+}
+
+.admin-dashboard .group-15 {
+  height: 29px;
+  left: 1280px;
+  position: absolute;
+  top: 22px;
+  width: 21px;
+}
+
+.admin-dashboard .ellipse-wrapper {
+  background-image: url(../img/admin_profile.png);
+  background-size: 100% 100%;
+  height: 51px;
+  left: 1337px;
+  position: absolute;
+  top: 10px;
+  width: 50px;
+}
+
+.admin-dashboard .ellipse {
+  background-color: #23cf01;
+  border: 1px solid;
+  border-color: #000000;
+  border-radius: 7.24px/7.27px;
+  height: 15px;
+  left: 36px;
+  position: relative;
+  top: 33px;
+  width: 14px;
+}
+
+.admin-dashboard .overlap-group-3 {
+  height: 70px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 276px;
+}
+
+.admin-dashboard .back-ground {
+  height: 65px;
+  left: 15px;
+  position: absolute;
+  top: 5px;
+  width: 80px;
+}
+
+.admin-dashboard .text-wrapper-11 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 32px;
+  font-weight: 700;
+  left: 120px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 20px;
+  width: 169px;
+}
+
+.admin-dashboard .overlap-4 {
+  height: 846px;
+  left: 501px;
+  position: absolute;
+  top: 133px;
+  width: 1041px;
+}
+
+.admin-dashboard .group-16 {
+  height: 846px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 1041px;
+}
+
+.admin-dashboard .overlap-5 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 571px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 1041px;
+}
+
+.admin-dashboard .even-grid-wrapper {
+  height: 483px;
+  left: 54px;
+  position: relative;
+  top: 54px;
+  width: 949px;
+}
+
+.admin-dashboard .group-wrapper-2 {
+  height: 483px;
+}
+
+.admin-dashboard .group-17 {
+  height: 483px;
+  width: 949px;
+}
+
+.admin-dashboard .group-18 {
+  height: 483px;
+  position: relative;
+}
+
+.admin-dashboard .group-19 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 0;
+  position: absolute;
+  top: 257px;
+  width: 254px;
+}
+
+.admin-dashboard .group-20 {
+  height: 167px;
+  left: 57px;
+  position: relative;
+  top: 30px;
+  width: 152px;
+}
+
+.admin-dashboard .text-wrapper-12 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 23px;
+  font-weight: 700;
+  left: 0;
+  letter-spacing: 0;
+  line-height: 25.3px;
+  position: absolute;
+  text-align: center;
+  top: 115px;
+  width: 150px;
+}
+
+.admin-dashboard .inventory {
+  height: 100px;
+  left: 27px;
+  position: absolute;
+  top: 0;
+  width: 100px;
+}
+
+.admin-dashboard .group-21 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 344px;
+  position: absolute;
+  top: 252px;
+  width: 254px;
+}
+
+.admin-dashboard .group-22 {
+  height: 172px;
+  left: 65px;
+  position: relative;
+  top: 35px;
+  width: 119px;
+}
+
+.admin-dashboard .text-wrapper-13 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 23px;
+  font-weight: 700;
+  left: 0;
+  letter-spacing: 0;
+  line-height: 25.3px;
+  position: absolute;
+  text-align: center;
+  top: 118px;
+  width: 117px;
+}
+
+.admin-dashboard .student {
+  height: 100px;
+  left: 7px;
+  position: absolute;
+  top: 0;
+  width: 100px;
+}
+
+.admin-dashboard .group-23 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 694px;
+  position: absolute;
+  top: 252px;
+  width: 254px;
+}
+
+.admin-dashboard .group-24 {
+  height: 161px;
+  left: 73px;
+  position: relative;
+  top: 38px;
+  width: 122px;
+}
+
+.admin-dashboard .text-wrapper-14 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 23px;
+  font-weight: 700;
+  left: 0;
+  letter-spacing: 0;
+  line-height: 25.3px;
+  position: absolute;
+  text-align: center;
+  top: 110px;
+  width: 120px;
+}
+
+.admin-dashboard .img-2 {
+  height: 100px;
+  left: 10px;
+  position: absolute;
+  top: 0;
+  width: 100px;
+}
+
+.admin-dashboard .exam-wrapper {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 696px;
+  position: absolute;
+  top: 0;
+  width: 254px;
+}
+
+.admin-dashboard .exam {
+  height: 161px;
+  left: 70px;
+  position: relative;
+  top: 32px;
+  width: 122px;
+}
+
+.admin-dashboard .text-wrapper-15 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 23px;
+  font-weight: 700;
+  left: 0;
+  letter-spacing: 0;
+  line-height: 25.3px;
+  position: absolute;
+  text-align: center;
+  top: 136px;
+  white-space: nowrap;
+  width: 120px;
+}
+
+.admin-dashboard .exam-2 {
+  height: 100px;
+  left: 6px;
+  position: absolute;
+  top: 0;
+  width: 100px;
+}
+
+.admin-dashboard .circular-wrapper {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 343px;
+  position: absolute;
+  top: 0;
+  width: 254px;
+}
+
+.admin-dashboard .div-2 {
+  height: 161px;
+  left: 68px;
+  position: relative;
+  top: 32px;
+  width: 122px;
+}
+
+.admin-dashboard .circular {
+  height: 100px;
+  left: 13px;
+  position: absolute;
+  top: 0;
+  width: 100px;
+}
+
+.admin-dashboard .group-25 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 226px;
+  left: 1px;
+  position: absolute;
+  top: 0;
+  width: 254px;
+}
+
+.admin-dashboard .group-26 {
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
+  backdrop-filter: blur(10px) brightness(100%);
+  background-color: #e6e6e652;
+  border-radius: 9.92px;
+  height: 248px;
+  left: 0;
+  position: absolute;
+  top: 598px;
+  width: 1041px;
+}
+
+.admin-dashboard .group-27 {
+  height: 205px;
+  left: 10px;
+  position: absolute;
+  top: 619px;
+  width: 969px;
+}
+
+.admin-dashboard .overlap-6 {
+  height: 205px;
+  position: relative;
+  width: 971px;
+}
+
+.admin-dashboard .group-28 {
+  height: 200px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 971px;
+}
+
+.admin-dashboard .text-wrapper-16 {
+  color: #000000;
+  font-family: "Cairo-Bold", Helvetica;
+  font-size: 23px;
+  font-weight: 700;
+  left: 0;
+  letter-spacing: 0;
+  line-height: 25.3px;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 228px;
+}
+
+.admin-dashboard .rectangle-2 {
+  background-color: #00000040;
+  border-radius: 10px;
+  height: 160px;
+  left: 49px;
+  mix-blend-mode: screen;
+  position: absolute;
+  top: 40px;
+  width: 920px;
+}
+
+.admin-dashboard .notification-msg {
+  height: 165px;
+  left: 49px;
+  position: absolute;
+  top: 40px;
+  width: 888px;
+}
+
+.admin-dashboard .lorem-ipsum-is {
+  color: #000000;
+  font-family: "Inter-Regular", Helvetica;
+  font-size: 18px;
+  font-weight: 400;
+  left: 0;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+  width: 886px;
+}
+
+.admin-dashboard .rectangle-3 {
+  background-color: #d9d9d9;
+  border-radius: 5px;
+  height: 62px;
+  left: 1014px;
+  position: absolute;
+  top: 619px;
+  width: 19px;
+}
+
+.admin-dashboard .rectangle-4 {
+  height: 181px;
+  left: 1015px;
+  position: absolute;
+  top: 623px;
+  width: 18px;
+}
