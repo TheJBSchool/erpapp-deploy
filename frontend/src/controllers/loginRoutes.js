@@ -1,7 +1,7 @@
 const base = process.env.REACT_APP_BASE;
 
 export const login_user = async(obj) => {
-    const res = await fetch(`https://apierp.thejbschool.com/login`, {
+    const res = await fetch(`${base}/login`, {
         method: 'POST',
         body: JSON.stringify(obj),
         headers: {
