@@ -34,6 +34,12 @@ const AdminLeftPanel = ({adminData}) => {
                     <h2 className="font-bold ">My Profile</h2>
                 </div>
 
+                <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'communication' ? "bg-red-200" : ""
+                    }`} onClick={() => setSelectedItem('communication')}>
+                    <img className="h-7 w-7 mr-5" alt="communication" src={require('../../img/comments.png')} />
+                    <h2 className="font-bold ">Communication</h2>
+                </div>
+
                 <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'attendace' ? "bg-red-200" : ""
                     }`} onClick={() => setSelectedItem('attendace')}>
                     <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/attendence-icon.png')} />

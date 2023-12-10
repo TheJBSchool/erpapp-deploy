@@ -23,13 +23,9 @@ const Header = ({adminId}) => {
         </div> 
 
         {/* right part of header */}
-        <div className="flex items-center justify-evenly w-48"  onClick ={() => {
-          localStorage.removeItem("token");
-          navigate('/');
-        }} >
+        <div className="flex items-center justify-evenly w-48" >
           <img className="h-10 w-10  hover:cursor-pointer"  src={require('../../img/back.png')} alt="back"  />
           <img className="h-10 w-10  hover:cursor-pointer"  src={require('../../img/notification.png')} alt="notifications" />
-          <img className="h-10 w-10  hover:cursor-pointer"  src={require('../../img/admin_profile.png')} alt="profile" />
         </div>
     </div>
   );
