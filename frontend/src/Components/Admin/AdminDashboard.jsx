@@ -110,11 +110,6 @@ const AdminDashboard = () => {
                 <p className="font-bold text-sm text-center">Manage <br />Teachers</p>
               </div>
 
-              <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => setSelectedItem('communication')}>
-                <img className="h-14 w-14 mb-4" alt="communication" src={require('../../img/comments.png')} />
-                <p className="font-bold text-sm text-center">Communications</p>
-              </div>
-
             </div>
           )}
 
