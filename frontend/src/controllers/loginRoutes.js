@@ -612,3 +612,60 @@ export const all_teachers_names = async ()=> {
     const ans = await res.json();
     return ans;
 }
+
+export const save_subjects = async(obj) => {
+    const res = await fetch(`${base}/savesubjects`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const ans = await res.json();
+    return ans;
+}
+
+export const save_examTypes = async(obj) => {
+    const res = await fetch(`${base}/saveexamtype`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const ans = await res.json();
+    return ans;
+}
+
+export const get_subjects = async (clss)=> {
+    const res = await fetch(`${base}/getsubjects/${clss}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const get_examTypes = async (clss)=> {
+    const res = await fetch(`${base}/getexamtype/${clss}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const get_studentsName = async (clss)=> {
+    const res = await fetch(`${base}/getstudentsname/${clss}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}

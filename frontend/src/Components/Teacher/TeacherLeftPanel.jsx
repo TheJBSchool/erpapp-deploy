@@ -43,6 +43,12 @@ const TeacherLeftPanel = ({name, id}) => {
                     <h2 className="font-bold ">Communications</h2>
                 </div>
 
+                <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'timeTable' ? "bg-red-200" : ""
+                    }`} onClick={() => setSelectedItem('timeTable')}>
+                    <img className="h-7 w-7 mr-5 text-black" alt="timetable" src={require('../../img/timetable.png')} />
+                    <h2 className="font-bold ">Time Table</h2>
+                </div>
+
                 <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'attendace' ? "bg-red-200" : ""
                     }`} onClick={() => setSelectedItem('attendace')}>
                     <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/attendence-icon.png')} />
@@ -66,12 +72,6 @@ const TeacherLeftPanel = ({name, id}) => {
                     }`} onClick={() => setSelectedItem('lostFound')}>
                     <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/lost-found.png')} />
                     <h2 className="font-bold ">Lost and Found</h2>
-                </div>
-
-                <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'fees' ? "bg-red-200" : ""
-                    }`} onClick={() => setSelectedItem('fees')}>
-                    <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/fees-icon.png')} />
-                    <h2 className="font-bold ">Salary</h2>
                 </div>
 
             </div>

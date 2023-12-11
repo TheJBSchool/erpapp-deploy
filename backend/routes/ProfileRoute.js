@@ -14,6 +14,8 @@ const multer = require('multer');
 const LostItem = require('../src/models/lostItem');
 const Circular = require('../src/models/circular');
 const Otp = require('../src/models/otp');
+const Subject = require('../src/models/subjects');
+const ExamType = require('../src/models/examTypes');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
@@ -721,4 +723,68 @@ router.get('/teachernames', async (req, res) => {
         return res.json({ error: e.message });
     }
 });
+
+
+router.post('/savesubjects', async (req, res) => {
+    try {
+        const resp = await Subject.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
+        if (data.nModified === 0) {
+          return res.status(409).json({ message: "Failed to update" });
+        }
+        return res.status(201).json({ resp, status: 201 });
+    } catch (e) {
+        return res.json({ "error": e.message });
+    }
+})
+
+router.post('/saveexamtype', async (req, res) => {
+    try {
+        const resp = await ExamType.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
+        return res.status(201).json({ resp, status: 201 });
+    } catch (e) {
+        return res.json({ "error": e.message });
+    }
+})
+
+router.get('/getsubjects/:class', async (req, res) => { 
+  const clss = req.params.class;
+  try {
+    const data = await Subject.find({class:clss});
+    return res.status(201).json(data);
+  } catch (e) {
+    return res.json({ error: e.message });
+  }
+});
+
+router.get('/getexamtype/:class', async (req, res) => { 
+  const clss = req.params.class;
+  try {
+    const data = await ExamType.find({class:clss}); 
+    return res.status(201).json(data);
+  } catch (e) {
+    return res.json({ error: e.message });
+  }
+});
+
+router.get('/getstudentsname/:class', async (req, res) => { 
+  const clss = req.params.class;
+
+  const regex = /([0-9]+)([A-Za-z]+)/;
+  const matches = clss.match(regex);
+
+  if (matches && matches.length === 3) {
+    const classNumber = matches[1];
+    const section = matches[2];
+    try {
+      const data = await Student.find({class:classNumber, section:section}).select('name _id'); 
+      return res.status(201).json(data);
+    } catch (e) {
+      return res.json({ error: e.message });
+    }
+  }
+
+});
+
+
+
 module.exports = router;

@@ -1,6 +1,8 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useContext} from 'react';
 import { bgcolor2 } from "../Home/custom.js";
-import { all_teachers_names } from '../../controllers/loginRoutes.js';
+import { all_teachers_names, save_subjects, save_examTypes, get_subjects, get_examTypes,get_studentsName } from '../../controllers/loginRoutes.js';
+import { LoadingContext } from '../../App.js';
+import SetResult from './SetResult.jsx';
 
 const Teachers = [
   { id: 1, name: 'Teacher A' },
@@ -8,6 +10,7 @@ const Teachers = [
   { id: 3, name: 'Teacher C' },
   // Add more teachers as needed
 ];
+
 
 const Result = ({teacherData}) => {
   const [teacherNames, setTeacherNames] = useState([]);
@@ -18,12 +21,28 @@ const Result = ({teacherData}) => {
   const [selectedTeacher, setSelectedTeacher] = useState('');
   const [newExam, setNewExam] = useState('');
   const [totalMarks, setTotalMarks] = useState('');
-  const [session , setSession] = useState('');
+  const [tempNote, setTempNote]= useState('');
+  const [studentNames, setStudentNames]= useState([]);
+
+  const { isLoading, toggleLoading } = useContext(LoadingContext);
 
   useEffect(()=>{
     all_teachers_names().then((resp)=>{
         // console.log("teacher name resp",resp)
         setTeacherNames(resp);
+    })
+    get_subjects(teacherData.class_teacher).then((resp)=>{
+      setSubjectRows(resp[0].subjects);
+      console.log(resp[0].subjects);
+    })
+
+    get_examTypes(teacherData.class_teacher).then((resp)=>{
+      setExamRows(resp[0].exams);
+    })
+
+    get_studentsName(teacherData.class_teacher).then((resp)=>{
+      console.log("studentNames",resp)
+      setStudentNames(resp);
     })
 
   },[])
@@ -67,21 +86,57 @@ const Result = ({teacherData}) => {
     setSelectedOption(event.target.value);
   };
 
+  const handleDeleteSubjectRow = (index) => {
+    const updatedRows = [...subjectRows];
+    updatedRows.splice(index, 1);
+    setSubjectRows(updatedRows);
+  };
+
+  const handleDeleteExamRow = (index) => {
+    const updatedRows = [...examRows];
+    updatedRows.splice(index, 1);
+    setExamRows(updatedRows);
+  };
+
   const subjectSubmit = ()=>{
     const obj = {
         class : teacherData.class_teacher, 
         subjects : subjectRows
     }
     console.log("subject Submit", obj)
-    
+    toggleLoading(true);
+    save_subjects(obj).then((resp) => {
+      if (resp.status == 201) {
+        setTempNote("Successful Submitted");
+      } else {
+        setTempNote("Failed to Submit!! ");
+      }
+    }).catch((error) => {
+      setTempNote("Error during submit");
+    }).finally(() => {
+      toggleLoading(false); // Stop loading
+    });
+
   }
+    
   const examTypeSubmit = ()=>{
     const obj = {
         class : teacherData.class_teacher,
-        session : session,
         exams : examRows
     }
     console.log("Exam Submit", obj)
+    toggleLoading(true);
+    save_examTypes(obj).then((resp) => {
+      if (resp.status == 201) {
+        setTempNote("Successful Submitted");
+      } else {
+        setTempNote("Failed to Submit!! ");
+      }
+    }).catch((error) => {
+      setTempNote("Error during submit");
+    }).finally(() => {
+      toggleLoading(false); // Stop loading
+    });
   }
 
   return (
@@ -167,9 +222,17 @@ const Result = ({teacherData}) => {
                 </tr>
 
                 {subjectRows.map((row, index) => (
-                  <tr key={index} className='bg-blue-50'>
-                    <td className="border-2 p-3">{row.subject}</td>
-                    <td className="border-2 p-3">{row.teacher}</td>
+                  <tr key={index}>
+                    <td className="border-2 p-3 bg-blue-50">{row.subject}</td>
+                    <td className="border-2 p-3 bg-blue-50">{row.teacher}</td>
+                    <td className="border-2 p-3">
+                      <button
+                        onClick={() => handleDeleteSubjectRow(index)}
+                        className="px-2 py-1 bg-red-500 text-white rounded-md"
+                      >
+                        <img className='w-4 h4 text-black' src={require('../../img/delete.png')} alt="buttonpng" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -190,21 +253,6 @@ const Result = ({teacherData}) => {
       {selectedOption === 'setExamTypes' && (
         <div>
           <div className="mt-5">
-            <div className='my-4 flex items-center'>
-              <label htmlFor="session" className="mr-2 block font-bold text-gray-600">Session: </label>
-              <select
-                id="session"
-                className="w-fit border rounded-md py-2 px-3 focus:outline-none focus:border-red-200"
-                name="session"
-                value={session}
-                onChange={(e)=>setSession(e.target.value)}
-                required
-              >
-                <option value="">Select an option</option>
-                <option value="2022-23">2022-23</option>
-                <option value="2023-24">2023-24</option>
-              </select>
-            </div>
             <div className="my-4">
               <button
                 onClick={handleAddExamRow}
@@ -250,9 +298,17 @@ const Result = ({teacherData}) => {
                   </tr>
 
                   {examRows.map((row, index) => (
-                    <tr key={index} className='bg-blue-50'>
-                      <td className="border-2 p-3">{row.examName}</td>
-                      <td className="border-2 p-3">{row.totalMarks}</td>
+                    <tr key={index}>
+                      <td className="border-2 p-3 bg-blue-50">{row.examName}</td>
+                      <td className="border-2 p-3 bg-blue-50">{row.totalMarks}</td>
+                      <td className="border-2 p-3 bg-transparent">
+                        <button
+                          onClick={() => handleDeleteExamRow(index)}
+                          className="px-2 py-1 bg-red-500 text-white rounded-md"
+                        >
+                          <img className='w-4 h4 text-black' src={require('../../img/delete.png')} alt="buttonpng" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -269,6 +325,12 @@ const Result = ({teacherData}) => {
           </div>
         </div>
       )}
+      <div>
+        {tempNote && <p>{tempNote}</p>}
+      </div>
+      <div className='mt-2 bg-yellow-100'>
+        {examRows && subjectRows && studentNames && <SetResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} />}
+      </div>
     </div>
   )
 }

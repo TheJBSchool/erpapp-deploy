@@ -43,25 +43,6 @@ export const TeacherDashboard = () => {
           <div className="flex flex-col w-10/12 h-full ">
             {selectedItem === "dashboard" && (
               <>
-
-              <div style={bgcolor2} className="border-2  border-red-300 rounded-lg grid grid-cols-3 gap-12 p-10 ">
-
-                <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => setSelectedItem('timeTable')}>
-                  <img className="h-14 w-14 mb-4" alt="Timetable" src={require('../../img/timetable.png')} />
-                  <p className="font-bold text-sm">Time Table</p>
-                </div>
-
-                <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => setSelectedItem('circular')}>
-                  <img className="h-14 w-14 mb-4" alt="circular" src={require('../../img/circular.png')} />
-                  <p className="font-bold text-sm">Circular</p>
-                </div>
-
-                <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => setSelectedItem('exam')}>
-                  <img className="h-14 w-14 mb-4" alt="exam" src={require('../../img/exam.png')} />
-                  <p className="font-bold text-sm">exam</p>
-                </div>
-
-              </div>
             <Calender students={students}></Calender>
               </>
             )}
