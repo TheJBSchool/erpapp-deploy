@@ -16,6 +16,7 @@ const Circular = require('../src/models/circular');
 const Otp = require('../src/models/otp');
 const Subject = require('../src/models/subjects');
 const ExamType = require('../src/models/examTypes');
+const Result = require('../src/models/result');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
@@ -720,7 +721,7 @@ router.get('/teachernames', async (req, res) => {
         const allTeachers = await Teacher.find().select('name _id'); // Filtering only 'name' and 'id' fields
         return res.status(201).json(allTeachers);
     } catch (e) {
-        return res.json({ error: e.message });
+        return res.status(409).json({ error: e.message });
     }
 });
 
@@ -728,12 +729,12 @@ router.get('/teachernames', async (req, res) => {
 router.post('/savesubjects', async (req, res) => {
     try {
         const resp = await Subject.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
-        if (data.nModified === 0) {
+        if (resp.nModified === 0) {
           return res.status(409).json({ message: "Failed to update" });
         }
         return res.status(201).json({ resp, status: 201 });
     } catch (e) {
-        return res.json({ "error": e.message });
+        return res.status(409).json({ "error": e.message });
     }
 })
 
@@ -752,7 +753,7 @@ router.get('/getsubjects/:class', async (req, res) => {
     const data = await Subject.find({class:clss});
     return res.status(201).json(data);
   } catch (e) {
-    return res.json({ error: e.message });
+    return res.status(409).json({ error: e.message });
   }
 });
 
@@ -762,7 +763,7 @@ router.get('/getexamtype/:class', async (req, res) => {
     const data = await ExamType.find({class:clss}); 
     return res.status(201).json(data);
   } catch (e) {
-    return res.json({ error: e.message });
+    return res.status(409).json({ error: e.message });
   }
 });
 
@@ -779,12 +780,34 @@ router.get('/getstudentsname/:class', async (req, res) => {
       const data = await Student.find({class:classNumber, section:section}).select('name _id'); 
       return res.status(201).json(data);
     } catch (e) {
-      return res.json({ error: e.message });
+      return res.status(409).json({ error: e.message });
     }
   }
 
 });
 
+router.post('/saveresult', async (req, res) => {
+  try {
+      const resp = await Result.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to save" });
+      }
+      return res.status(201).json({ resp, status: 201 });
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+})
 
+router.post('/getresult', async (req, res) => {
+  try {
+      const resp = await Result.find({class: req.body.class, session: req.body.session, examType: req.body.examType});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to find" });
+      }
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+})
 
 module.exports = router;

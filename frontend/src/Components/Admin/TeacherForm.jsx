@@ -17,11 +17,11 @@ const TeacherForm = ({ formData, handleFormChange, formSubmit, loading, success 
     ];
     const [selectedOptions, setSelectedOptions] = useState([]);
     const classOptions = [];
-    for (let grade = 1; grade <= 10 ; grade++) {
+    classNames.map((grade)=> {
         for (let section = 'A'; section <= 'D'; section = String.fromCharCode(section.charCodeAt(0) + 1)) {
             classOptions.push(`${grade}${section}`);
         }
-    }
+    })
     const handleChange = selectedOption => {
         setSelectedOptions(selectedOption);
         const selectedSubjects = selectedOption ? selectedOption.map(option => option.label) : [];
@@ -76,10 +76,10 @@ const TeacherForm = ({ formData, handleFormChange, formSubmit, loading, success 
         </div>
 
         <div>
-        <label htmlFor="class" className=" mb-1 ml-1 block font-bold text-gray-600 ">Class
-            <span className="text-red-500">&nbsp;*</span>
-        </label>
-        <Multiselect selectedValues={formData.class} isObject={false} options={classOptions} onSelect={(e) => { formData.class = e }} onRemove={(e) => { formData.class = e }} showCheckbox showArrow />
+            <label htmlFor="class" className=" mb-1 ml-1 block font-bold text-gray-600 ">Class
+                <span className="text-red-500">&nbsp;*</span>
+            </label>
+            <Multiselect selectedValues={formData.class} isObject={false} options={classOptions} onSelect={(e) => { formData.class = e }} onRemove={(e) => { formData.class = e }} showCheckbox showArrow />
         </div>
 
         <div>

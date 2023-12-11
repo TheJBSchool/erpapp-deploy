@@ -68,12 +68,6 @@ const TeacherLeftPanel = ({name, id}) => {
                     <h2 className="font-bold ">Syllabus</h2>
                 </div>
 
-                <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'lostFound' ? "bg-red-200" : ""
-                    }`} onClick={() => setSelectedItem('lostFound')}>
-                    <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/lost-found.png')} />
-                    <h2 className="font-bold ">Lost and Found</h2>
-                </div>
-
             </div>
         </div>
     )

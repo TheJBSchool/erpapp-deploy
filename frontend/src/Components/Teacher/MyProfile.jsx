@@ -119,9 +119,6 @@ const MyProfile = ({teacherData}) => {
             </div>
             <div className='h-fit w-fit bg-slate-200 px-6 py-4 border-2 mt-2 border-red-300 rounded-l-[100px] rounded-br-[100px] flex flex-col items-center'>
                 <img className="w-40 h-30 p-5 mr-2 " src={require("../../img/teacher.png")} alt="StudentLogo" />
-                <h3 className='text-[10px]'>To change profile pic</h3>
-                <hr />
-                <button className='bg-white px-2 rounded-2xl mt-2 hover:bg-orange-300'>Click here</button>
             </div>
 
 

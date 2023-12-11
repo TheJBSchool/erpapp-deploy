@@ -53,9 +53,6 @@ const MyProfile = ({adminData}) => {
             </div>
             <div className='h-fit w-fit bg-slate-200 px-6 py-4 border-2 mt-2 border-red-300 rounded-l-[100px] rounded-br-[100px] flex flex-col items-center'>
                 <img className="w-40 h-40 mr-2 " src={require("../../img/admin_profile.png")} alt="StudentLogo" />
-                <h3>To change profile pic</h3>
-                <hr />
-                <button className='bg-white px-2 rounded-2xl mt-2 hover:bg-orange-300'>Click here</button>
             </div>
 
           </div>

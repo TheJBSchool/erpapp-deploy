@@ -6,7 +6,7 @@ import { register_teacher, all_teachers,teacherUpdate, teacherDelete,searchTeach
 import Multiselect from 'multiselect-react-dropdown';
 import TeacherForm from "./TeacherForm";
 
-const ManageTeachers = () => {
+const ManageTeachers = ({adminId}) => {
   const [teachers, setTeachers] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
     group: '',
@@ -46,6 +46,7 @@ const ManageTeachers = () => {
     DOB: '',
     address: '',
     van: '',
+    underBy: adminId
   });
   const [note, setNote] = useState("");
   const [temp, tempNote] = useState("x");
@@ -80,6 +81,7 @@ const ManageTeachers = () => {
       DOB: '',
       address: '',
       van: '',
+      underBy: adminId
     });
     setSuccess(false);
   };

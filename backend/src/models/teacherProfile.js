@@ -76,6 +76,9 @@ const teacherSchema = new mongoose.Schema({
     van: {
         type: String,
         required: true
+    },
+    underBy:{
+        type: mongoose.ObjectId
     }
 });
 

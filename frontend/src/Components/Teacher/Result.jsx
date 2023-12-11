@@ -3,6 +3,7 @@ import { bgcolor2 } from "../Home/custom.js";
 import { all_teachers_names, save_subjects, save_examTypes, get_subjects, get_examTypes,get_studentsName } from '../../controllers/loginRoutes.js';
 import { LoadingContext } from '../../App.js';
 import SetResult from './SetResult.jsx';
+import ViewResult from './ViewResult.jsx';
 
 const Teachers = [
   { id: 1, name: 'Teacher A' },
@@ -24,6 +25,9 @@ const Result = ({teacherData}) => {
   const [tempNote, setTempNote]= useState('');
   const [studentNames, setStudentNames]= useState([]);
 
+  const [newExamType, setNewExamType] = useState(false);
+  const [customExamType, setCustomExamType] = useState('');
+
   const { isLoading, toggleLoading } = useContext(LoadingContext);
 
   useEffect(()=>{
@@ -33,15 +37,14 @@ const Result = ({teacherData}) => {
     })
     get_subjects(teacherData.class_teacher).then((resp)=>{
       setSubjectRows(resp[0].subjects);
-      console.log(resp[0].subjects);
     })
 
     get_examTypes(teacherData.class_teacher).then((resp)=>{
+      console.log(resp[0].exams);
       setExamRows(resp[0].exams);
     })
 
     get_studentsName(teacherData.class_teacher).then((resp)=>{
-      console.log("studentNames",resp)
       setStudentNames(resp);
     })
 
@@ -65,8 +68,16 @@ const Result = ({teacherData}) => {
     }
   };
 
-  const handleExamNameChange = (event) => {
-    setNewExam(event.target.value);
+  const handleExamNameChange = (e) => {
+    const selectedExam = e.target.value;
+
+    if (selectedExam === 'create') {
+      // Show input field for creating a custom exam type
+      setNewExamType(true)
+    }
+    else{
+      setNewExam(selectedExam);
+    }
   };
 
   const handleTotalMarksChange = (event) => {
@@ -79,6 +90,7 @@ const Result = ({teacherData}) => {
       setExamRows([...examRows, newRow]);
       setNewExam('');
       setTotalMarks('');
+      setNewExamType(false);
     }
   };
 
@@ -170,6 +182,17 @@ const Result = ({teacherData}) => {
                 onChange={handleOptionChange}
               />
               Set Exam Types
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="viewResult"
+                checked={selectedOption === 'viewResult'}
+                onChange={handleOptionChange}
+              />
+              View Results
             </label>
           </div>
         </div>
@@ -272,6 +295,15 @@ const Result = ({teacherData}) => {
                 <tbody>
                   <tr className='border-2 p-3'>
                     <td>
+                      {newExamType? 
+                        <input 
+                          type="text"
+                          name="examName"
+                          placeholder="Create New Exam Type"
+                          value={newExam}
+                          onChange={handleExamNameChange}
+                          className="p-2 border-2 rounded-md w-full"
+                        /> :
                       <select
                         className="w-fit border rounded-md py-2 px-3 focus:outline-none focus:border-red-200"
                         name="examName"
@@ -284,7 +316,10 @@ const Result = ({teacherData}) => {
                         <option value="Quaterly Exam">Quaterly Exam</option>
                         <option value="Half yearly Exam">Half yearly Exam</option>
                         <option value="Annual Exam">Annual Exam</option>
+                        <option value="create" className='text-blue-400'>Create Exam Type</option>
+
                       </select>
+                      }
                     </td>
                     <td>
                       <input
@@ -325,12 +360,19 @@ const Result = ({teacherData}) => {
           </div>
         </div>
       )}
-      <div>
-        {tempNote && <p>{tempNote}</p>}
-      </div>
-      <div className='mt-2 bg-yellow-100'>
-        {examRows && subjectRows && studentNames && <SetResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} />}
-      </div>
+
+      {selectedOption === 'viewResult' ? (
+        <ViewResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} teacherData={teacherData}/>
+      ): ( 
+      <>
+        <div>
+          {tempNote && <p>{tempNote}</p>}
+        </div>
+        <div className='mt-2 '>
+          {examRows && subjectRows && studentNames && <SetResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} teacherData={teacherData}/>}
+        </div>
+      </>
+      )}
     </div>
   )
 }

@@ -125,7 +125,7 @@ const AdminDashboard = () => {
           {selectedItem === "exam" && <Exam />}
           {selectedItem === "inventoryManagement" && <InventoryManagement />}
           {selectedItem === "manageStudents" && <ManageStudents />}
-          {selectedItem === "manageTeachers" && <ManageTeachers />}
+          {selectedItem === "manageTeachers" && <ManageTeachers adminId={adminData._id} />}
           {selectedItem === "lostFound" && <LostAndFound />}
           {selectedItem === "communication" && <Communication adminData={adminData} />}
 

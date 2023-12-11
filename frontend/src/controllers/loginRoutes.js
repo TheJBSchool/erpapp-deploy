@@ -669,3 +669,27 @@ export const get_studentsName = async (clss)=> {
     const ans = await res.json();
     return ans;
 }
+
+export const save_result = async(obj) => {
+    const res = await fetch(`${base}/saveresult`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const ans = await res.json();
+    return ans;
+}
+
+export const get_result= async (obj)=> {
+    const res = await fetch(`${base}/getresult`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}

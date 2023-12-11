@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { save_result, get_result } from '../../controllers/loginRoutes';
 
-const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
+const ViewResult = ({studentNames, subjectRows, examRows, teacherData}) => {
   const [marks, setMarks] = useState({});
   const [examTypeSelect, setExamTypeSelect] = useState('');
   const [session, setSession]= useState('');
   const [totalMarks, setTotalMarks] = useState(0);
-  const [currentFetchedResult, setCurrentFetchedResult] = useState({});
 
-  const handleMarksChange = (studentId, subjectId, value) => {
-    const updatedMarks = { ...marks };
-    if (!updatedMarks[studentId]) {
-      updatedMarks[studentId] = {};
-    }
-    updatedMarks[studentId][subjectId] = value;
-    setMarks(updatedMarks);
-  };
 
   const handleExamNameChange = (e) => {
     const selectedExamName = e.target.value;
@@ -56,8 +47,6 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
         }
         get_result(obj).then((resp)=>{
             if(resp.length>0){
-                console.log("result get resp",resp)
-                setCurrentFetchedResult(resp[0]);
                 setMarks(resp[0].studentsMarks)
             }
             else{
@@ -72,23 +61,6 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
     setSession(e.target.value)
   };
 
-  const resultSubmit = (e) => {
-    const obj = {
-        class: teacherData.class_teacher,
-        examType: examTypeSelect,
-        session: session,
-        studentsMarks: marks,
-        underBy: teacherData.underBy,
-        approved: false,
-        locked: false,
-        date_created: new Date(),
-        last_modified: null,
-    }
-    console.log('result',obj);
-    save_result(obj).then((resp)=>{
-        console.log("result resp",resp);
-    })
-  };
 
   return (
     <div>
@@ -126,43 +98,41 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
                 <tr>
                     <th className="border px-4 py-2 bg-lime-200">Students</th>
                     {subjectRows.map(subject => (
-                    <th key={subject._id} title={'Faculty: '+ subject.teacher} className="border px-4 py-2 bg-pink-200">{subject.subject}</th>
+                    <th key={subject._id} title={subject.teacher} className="border px-4 py-2 bg-pink-200">{subject.subject}</th>
                     ))}
+                    <th className="border px-4 py-2 bg-lime-200">Total Marks Obtained</th>
+                    <th className="border px-4 py-2 bg-lime-200">Percentage</th> {/* Added column for Percentage */}
                 </tr>
                 </thead>
                 <tbody>
-                {studentNames.map(student => (
+                {studentNames.map(student => {
+                    // Calculate total marks obtained by each student
+                    const totalMarksObtained = subjectRows.reduce((total, subject) => {
+                    const mark = marks[student._id]?.[subject.subject];
+                    return total + (mark ? parseInt(mark) : 0);
+                    }, 0);
+
+                    // Calculate percentage based on total marks obtained and total possible marks
+                    const percentage = ((totalMarksObtained / (totalMarks* subjectRows.length)) * 100).toFixed(2);
+
+                    return (
                     <tr key={student._id}>
-                    <td className="border px-4 py-2 bg-lime-100">{student.name}</td>
-                    {subjectRows.map(subject => (
+                        <td className="border px-4 py-2 bg-lime-100">{student.name}</td>
+                        {subjectRows.map(subject => (
                         <td key={subject._id} className="border px-4 py-2 bg-yellow-100">
-                        <input
-                            type="number"
-                            className="w-20 p-1 outline-none"
-                            disabled={!examTypeSelect || !session || currentFetchedResult&& session &&  currentFetchedResult.examType && currentFetchedResult.examType===examTypeSelect&& currentFetchedResult.session=== session && currentFetchedResult.approved === false}
-                            min={0}
-                            max={totalMarks}
-                            value={marks[student._id]?.[subject.subject] || ''}
-                            onChange={e =>
-                            handleMarksChange(student._id, subject.subject, e.target.value)
-                            }
-                        />
+                            <span>{marks[student._id]?.[subject.subject] || ''}</span>
                         </td>
-                    ))}
+                        ))}
+                        <td className="border px-4 py-2 bg-lime-100">{totalMarksObtained}/{totalMarks*subjectRows.length}</td>
+                        <td className="border px-4 py-2 bg-lime-100">{percentage}%</td>
                     </tr>
-                ))}
+                    );
+                })}
                 </tbody>
             </table>
-        </div>
-        <div className='flex flex-col items-end mt-2'>
-            <button className={`px-4 py-2 bg-green-400 hover:bg-green-500 rounded-lg ${currentFetchedResult&& session &&  currentFetchedResult.examType && currentFetchedResult.examType===examTypeSelect&& currentFetchedResult.session=== session && currentFetchedResult.approved === false?'hidden':''} `}  onClick={resultSubmit}>Submit for Approval</button>
-            { currentFetchedResult&& session &&  currentFetchedResult.examType && currentFetchedResult.examType===examTypeSelect&& currentFetchedResult.session=== session && ( currentFetchedResult.approved==false? 
-                <p className='text-red-400'>*This Result is yet to approved by Admin</p>: ''
-            )
-            }
         </div>
     </div>
   );
 };
 
-export default SetResult;
+export default ViewResult;
