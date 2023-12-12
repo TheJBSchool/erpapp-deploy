@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const createdBySchema = new mongoose.Schema({
+  teacherId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  }
+});
+
 const resultSchema = new mongoose.Schema({
   class: {
     type: String,
@@ -33,6 +44,14 @@ const resultSchema = new mongoose.Schema({
   last_modified: {
     type: Date,
     default: null
+  },
+  underBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  createdBy: {
+    type: createdBySchema,
+    required: true
   }
 });
 

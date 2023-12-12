@@ -92,7 +92,7 @@ const Login = () => {
           </div>
         </div>
 
-        <div maxWidth="sm" className="ml-8 p-8 bg-white rounded-lg shadow-md text-center">
+        <div className="ml-8 p-8 bg-white rounded-lg shadow-md text-center">
           <h1 className="text-2xl font-semibold mb-6" style={{ color: selectedType === '?' ? 'red' : 'black' }}>{selectedType === '?' ? 'Please select a login type' : `Login as ${selectedType || type}`}</h1>
           {selectedType && (
             <div className="temp">

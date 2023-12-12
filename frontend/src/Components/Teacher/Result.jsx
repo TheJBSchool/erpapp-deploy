@@ -40,7 +40,7 @@ const Result = ({teacherData}) => {
     })
 
     get_examTypes(teacherData.class_teacher).then((resp)=>{
-      console.log(resp[0].exams);
+      // console.log(resp[0].exams);
       setExamRows(resp[0].exams);
     })
 
@@ -115,7 +115,7 @@ const Result = ({teacherData}) => {
         class : teacherData.class_teacher, 
         subjects : subjectRows
     }
-    console.log("subject Submit", obj)
+    // console.log("subject Submit", obj)
     toggleLoading(true);
     save_subjects(obj).then((resp) => {
       if (resp.status == 201) {
@@ -136,7 +136,7 @@ const Result = ({teacherData}) => {
         class : teacherData.class_teacher,
         exams : examRows
     }
-    console.log("Exam Submit", obj)
+    // console.log("Exam Submit", obj)
     toggleLoading(true);
     save_examTypes(obj).then((resp) => {
       if (resp.status == 201) {
@@ -182,6 +182,17 @@ const Result = ({teacherData}) => {
                 onChange={handleOptionChange}
               />
               Set Exam Types
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="setResult"
+                checked={selectedOption === 'setResult'}
+                onChange={handleOptionChange}
+              />
+              Set Results
             </label>
           </div>
           <div>
@@ -361,18 +372,17 @@ const Result = ({teacherData}) => {
         </div>
       )}
 
-      {selectedOption === 'viewResult' ? (
+      {selectedOption === 'viewResult' && (
         <ViewResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} teacherData={teacherData}/>
-      ): ( 
-      <>
-        <div>
-          {tempNote && <p>{tempNote}</p>}
-        </div>
-        <div className='mt-2 '>
+      )}
+      {selectedOption === 'setResult' && (
+        <div >
           {examRows && subjectRows && studentNames && <SetResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} teacherData={teacherData}/>}
         </div>
-      </>
       )}
+      <div>
+        {tempNote && <p>{tempNote}</p>}
+      </div>
     </div>
   )
 }

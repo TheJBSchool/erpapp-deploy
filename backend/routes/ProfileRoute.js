@@ -725,6 +725,15 @@ router.get('/teachernames', async (req, res) => {
     }
 });
 
+router.get('/studentnames', async (req, res) => { 
+    try {
+        const allStudent = await Student.find().select('name _id'); // Filtering only 'name' and 'id' fields
+        return res.status(201).json(allStudent);
+    } catch (e) {
+        return res.status(409).json({ error: e.message });
+    }
+});
+
 
 router.post('/savesubjects', async (req, res) => {
     try {
@@ -788,10 +797,7 @@ router.get('/getstudentsname/:class', async (req, res) => {
 
 router.post('/saveresult', async (req, res) => {
   try {
-      const resp = await Result.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
-      if (!resp) {
-        return res.status(409).json({ message: "Failed to save" });
-      }
+      const resp = await Result.findOneAndUpdate({class: req.body.class,session: req.body.session,examType: req.body.examType},req.body,{ upsert: true,new: true});
       return res.status(201).json({ resp, status: 201 });
   } catch (e) {
       return res.status(409).json({ "error": e.message });
@@ -810,4 +816,43 @@ router.post('/getresult', async (req, res) => {
   }
 })
 
+router.get('/resultrequest/:id', async (req, res) => {
+  const admin_id = req.params.id;
+  try {
+      const resp = await Result.find({underBy:admin_id,approved: false});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to find" });
+      }
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+})
+
+router.patch('/approveresult/:result_id/:admin_id',async (req, res) => {
+  const { result_id, admin_id } = req.params;
+  const data = await Result.findOneAndUpdate({_id:result_id}, { approved: true }, { upsert: true})
+  if (data.nModified === 0) {
+    return res.status(404).json({ message: "Title not updated" });
+  }
+  try {
+      const resp = await Result.find({underBy:admin_id,approved: false});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to find" });
+      }
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+});
+
+router.patch('/lockresult/:result_id',async (req, res) => {
+  const result_id= req.params.result_id;
+  const data = await Result.findOneAndUpdate({_id:result_id}, { locked: true }, { upsert: true, new:true})
+  if (data.nModified === 0) {
+    return res.status(404).json({ message: "Title not updated" });
+  }
+  return res.status(201).json(data);
+  
+});
 module.exports = router;

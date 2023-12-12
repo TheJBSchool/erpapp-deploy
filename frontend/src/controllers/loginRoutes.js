@@ -613,6 +613,17 @@ export const all_teachers_names = async ()=> {
     return ans;
 }
 
+export const all_students_names = async ()=> {
+    const res = await fetch(`${base}/studentnames`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
 export const save_subjects = async(obj) => {
     const res = await fetch(`${base}/savesubjects`, {
         method: 'POST',
@@ -693,3 +704,46 @@ export const get_result= async (obj)=> {
     const ans = await res.json();
     return ans;
 }
+
+export const result_approval= async (id)=> {
+    const res = await fetch(`${base}/resultrequest/${id}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const approve_result = async (res_id, admin_id) => {
+  try {
+
+    const res = await fetch(`${base}/approveresult/${res_id}/${admin_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },  
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const lock_result = async (res_id) => {
+  try {
+
+    const res = await fetch(`${base}/lockresult/${res_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },  
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};

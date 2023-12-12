@@ -21,6 +21,7 @@ import Header from "../common/Header";
 import AdminLeftPanel from "../common/AdminLeftPanel";
 import Notification from "../common/Notification";
 import LostAndFound from "./LostAndFound.jsx";
+import RequestValidation from "./RequestValidation.jsx";
 
 
 export const AdminContext = createContext();
@@ -128,6 +129,8 @@ const AdminDashboard = () => {
           {selectedItem === "manageTeachers" && <ManageTeachers adminId={adminData._id} />}
           {selectedItem === "lostFound" && <LostAndFound />}
           {selectedItem === "communication" && <Communication adminData={adminData} />}
+          {selectedItem === "requestvalidation" && <RequestValidation adminId={adminData._id}/>}
+
 
 
           {/* Notification */}
