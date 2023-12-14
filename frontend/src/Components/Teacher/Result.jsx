@@ -36,12 +36,16 @@ const Result = ({teacherData}) => {
         setTeacherNames(resp);
     })
     get_subjects(teacherData.class_teacher).then((resp)=>{
-      setSubjectRows(resp[0].subjects);
+      if(resp){
+        setSubjectRows(resp[0]?.subjects);
+      }
     })
 
     get_examTypes(teacherData.class_teacher).then((resp)=>{
       // console.log(resp[0].exams);
-      setExamRows(resp[0].exams);
+      if(resp){
+        setExamRows(resp[0]?.exams);
+      }
     })
 
     get_studentsName(teacherData.class_teacher).then((resp)=>{
@@ -255,7 +259,7 @@ const Result = ({teacherData}) => {
                   </td>
                 </tr>
 
-                {subjectRows.map((row, index) => (
+                {subjectRows && subjectRows.map((row, index) => (
                   <tr key={index}>
                     <td className="border-2 p-3 bg-blue-50">{row.subject}</td>
                     <td className="border-2 p-3 bg-blue-50">{row.teacher}</td>
@@ -343,7 +347,7 @@ const Result = ({teacherData}) => {
                     </td>
                   </tr>
 
-                  {examRows.map((row, index) => (
+                  {examRows && examRows.map((row, index) => (
                     <tr key={index}>
                       <td className="border-2 p-3 bg-blue-50">{row.examName}</td>
                       <td className="border-2 p-3 bg-blue-50">{row.totalMarks}</td>
@@ -372,7 +376,7 @@ const Result = ({teacherData}) => {
         </div>
       )}
 
-      {selectedOption === 'viewResult' && (
+      {selectedOption === 'viewResult' && studentNames && examRows && (
         <ViewResult studentNames={studentNames} subjectRows={subjectRows} examRows={examRows} teacherData={teacherData}/>
       )}
       {selectedOption === 'setResult' && (

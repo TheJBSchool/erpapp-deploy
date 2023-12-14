@@ -17,6 +17,7 @@ const Otp = require('../src/models/otp');
 const Subject = require('../src/models/subjects');
 const ExamType = require('../src/models/examTypes');
 const Result = require('../src/models/result');
+const ResultReq = require('../src/models/resultReq');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
@@ -816,6 +817,19 @@ router.post('/getresult', async (req, res) => {
   }
 })
 
+router.get('/getresult/:id', async (req, res) => {
+  const result_id = req.params.id;
+  try {
+      const resp = await Result.find({_id:result_id});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to find" });
+      }
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+})
+
 router.get('/resultrequest/:id', async (req, res) => {
   const admin_id = req.params.id;
   try {
@@ -855,4 +869,44 @@ router.patch('/lockresult/:result_id',async (req, res) => {
   return res.status(201).json(data);
   
 });
+
+router.post('/unlockreq', async (req, res) => {
+    try {
+        const new_resultreq = new ResultReq(req.body);
+        const resp = await new_resultreq.save();
+        return res.status(201).json({ resp, status: 201 });
+    } catch (e) {
+        return res.json({ "error": e.message });
+    }
+})
+
+router.get('/unlockreq/:id', async (req, res) => {
+  const admin_id= req.params.id;
+    try {
+        const all_unlockresultreq = await ResultReq.find({underBy:admin_id});
+        return res.status(201).json(all_unlockresultreq);
+    } catch (e) {
+        return res.json({ "error": e.message });
+    }
+})
+
+router.delete('/unlockreq/:reqid', async (req, res) => {
+  const request_id= req.params.reqid;
+    try {
+        const data = await ResultReq.deleteOne({_id:request_id});
+        return res.status(200).json(data);
+    } catch (e) {
+        return res.json({ "error": e.message });
+    }
+})
+
+router.patch('/unlockreq/:result_id',async (req, res) => {
+  const {result_id } = req.params;
+  const data = await Result.findOneAndUpdate({_id:result_id}, {locked:false })
+  if (data.nModified === 0) {
+    return res.status(404).json({ message: "Title not updated" });
+  }
+  return res.status(201).json({ data, status: 201 });
+});
+
 module.exports = router;

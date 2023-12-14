@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { save_result, get_result, lock_result } from '../../controllers/loginRoutes';
+import { save_result, get_result, lock_result, unlock_req } from '../../controllers/loginRoutes';
 import { LoadingContext } from '../../App.js';
 
 const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
@@ -63,7 +63,8 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
                 setMarks(resp[0].studentsMarks)
             }
             else{
-                setMarks({})
+                setCurrentFetchedResult({});
+                setMarks({});
             }
         })
     }
@@ -106,6 +107,31 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
         alert("Result Locked Successfully");
       }
       setCurrentFetchedResult(resp);
+    })
+  }
+
+  const handleUnlock = ()=>{
+    const obj = {
+      type: "unlock",
+      date_created: new Date(),
+      underBy: teacherData.underBy,
+      createdBy: {
+        teacherId: teacherData._id,
+        name: teacherData.name,
+      },
+      resultId: currentFetchedResult._id
+    }
+    unlock_req(obj).then((resp)=>{
+      toggleLoading(true);
+      console.log("unlock req",resp)
+      if(resp.status === 201){
+        alert("Unlock Request sent to Admin Successfully!!");
+        toggleLoading(false);
+      }
+      else{
+        alert("Failed to sent Unlock Request!!");
+        toggleLoading(false);
+      }
     })
   }
 
@@ -237,7 +263,7 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
           {currentFetchedResult && session &&
           currentFetchedResult.examType &&
           currentFetchedResult.examType === examTypeSelect &&
-          currentFetchedResult.session === session && currentFetchedResult.approved === true && currentFetchedResult.locked === true && <button className={`ml-2 px-4 py-2 bg-blue-400 hover:bg-blue-500 rounded-lg `}>Request to Unlock</button>}
+          currentFetchedResult.session === session && currentFetchedResult.approved === true && currentFetchedResult.locked === true && <button className={`ml-2 px-4 py-2 bg-blue-400 hover:bg-blue-500 rounded-lg `} onClick={handleUnlock}>Request to Unlock</button>}
 
         </div>
         {currentFetchedResult &&

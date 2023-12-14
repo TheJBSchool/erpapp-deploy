@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { bgcolor2 } from "../Home/custom.js";
-import { result_approval,all_students_names, approve_result} from '../../controllers/loginRoutes.js';
+import { result_approval,all_students_names, approve_result, all_unlock_resultreq, get_resultById, approve_unlock_result, delete_unlock_resultreq} from '../../controllers/loginRoutes.js';
 import { LoadingContext } from '../../App.js';
+import ViewResult from './ViewResult.jsx';
 
 const ResquestValidation = ({adminId}) => {
   const [selectedOption, setSelectedOption] = useState('');
@@ -9,6 +10,8 @@ const ResquestValidation = ({adminId}) => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [resultInd, setResultInd] = useState(-1);
   const [studentsData, setStudentsData] = useState([]);
+  const [unlockresultRequests, setUnlockresultRequests] = useState([]);
+  const [reqestedResult, setRequestedResult]= useState(null);
 
   const { isLoading, toggleLoading } = useContext(LoadingContext);
 
@@ -22,10 +25,16 @@ const ResquestValidation = ({adminId}) => {
     }).catch((error) => {
       console.error('Error fetching students:', error);
     });
+
+    all_unlock_resultreq(adminId).then((resp)=>{
+      // console.log("unlock request",resp)
+      setUnlockresultRequests(resp);
+    })
   },[])
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
+    setResultInd(-1);
   };
 
   const handleViewResult = (item,index) => {
@@ -36,12 +45,46 @@ const ResquestValidation = ({adminId}) => {
   const approveResult = (resultId) =>{
     toggleLoading(true);
     approve_result(resultId,adminId).then((resp)=>{
-      console.log("approve result",resp)
       setResultRequests(resp);
 
       toggleLoading(false);
     })
   }
+  
+  const handleViewResult_unlockreq = (resultId, reqid)=>{
+    setResultInd(reqid);
+    if(resultInd!== reqid){
+      toggleLoading(true);
+      get_resultById(resultId).then((resp)=>{
+        toggleLoading(false);
+        if(resp){
+          // console.log("unlock requested result",resp)
+          setRequestedResult(resp[0])
+        }
+        else{
+          alert("Result not Found!!");
+        }
+      })
+    }
+  }
+
+  const approveUnlockResult =(reqId,resultId)=>{
+    toggleLoading(true);
+    approve_unlock_result(resultId).then((resp)=>{
+      console.log("approveUnlockResult",resp)
+      //unlock result --> delete unlock request --> fetch updated unlock requests
+      if(resp.status === 201){
+        delete_unlock_resultreq(reqId).then((res)=>{
+          all_unlock_resultreq(adminId).then((data)=>{
+            setUnlockresultRequests(data);
+          })
+        })
+        toggleLoading(false);
+        alert(`Approved the unlock request of Result Id- ${resultId} `)
+      }
+    })
+  }
+  
   return (
     <div style={bgcolor2} className="border-2  border-red-300 rounded-lg p-10 h-full">
         {/* header */}
@@ -66,22 +109,22 @@ const ResquestValidation = ({adminId}) => {
               <label>
                 <input
                   type="radio"
-                  value="setExamTypes"
-                  checked={selectedOption === 'setExamTypes'}
+                  value="unlockresult"
+                  checked={selectedOption === 'unlockresult'}
                   onChange={handleOptionChange}
                 />
-                Set Exam Types
+                Unlock Result Request
               </label>
             </div>
             <div>
               <label>
                 <input
                   type="radio"
-                  value="viewResult"
-                  checked={selectedOption === 'viewResult'}
+                  value="none"
+                  checked={selectedOption === 'none'}
                   onChange={handleOptionChange}
                 />
-                View Results
+                None
               </label>
             </div>
           </div>
@@ -98,32 +141,7 @@ const ResquestValidation = ({adminId}) => {
                 <button className='px-2 rounded-lg bg-sky-200 hover:bg-sky-300 text-sm' onClick={() => handleViewResult(item,item._id)}>View Result</button>
               </div>
               {selectedResult && resultInd===item._id && (
-                <div className='mt-4 col-span-3 overflow-auto'>
-                  <table className='table-auto border-collapse border border-gray-500'>
-                    <thead>
-                      <tr>
-                        <th className='border border-gray-500 px-4 py-2'>Student Name</th>
-                        {/* Assuming subjects are consistent across all students */}
-                        {Object.keys(selectedResult.studentsMarks[Object.keys(selectedResult.studentsMarks)[0]]).map((subject) => (
-                          <th key={subject} className='border border-gray-500 px-4 py-2'>{subject}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.keys(selectedResult.studentsMarks).map((studentId) => {
-                        const studentName = studentsData.find((student) => student._id === studentId)?.name || 'Unknown';
-                        return (
-                          <tr key={studentId}>
-                            <td className='border border-gray-500 px-4 py-2'>{studentName}</td>
-                            {Object.entries(selectedResult.studentsMarks[studentId]).map(([subject, marks]) => (
-                              <td key={subject} className='border border-gray-500 px-4 py-2'>{marks}</td>
-                            ))}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <ViewResult selectedResult={selectedResult} studentsData={studentsData}/>
               )}
               {resultInd===item._id && 
                 <div className='col-span-3 flex justify-end'>
@@ -132,6 +150,29 @@ const ResquestValidation = ({adminId}) => {
               }
             </div>
           })}
+        </div>
+      )}
+
+      {selectedOption === 'unlockresult' && (
+        <div>
+        {unlockresultRequests.length>0 && unlockresultRequests.map((item,ind)=>(
+          <div key={ind} className=' bg-slate-100 border-2 rounded-lg m-2 p-2'>
+            <p>Result Created on : {item.date_created}</p>
+            <p>Created By : {item.createdBy.name}</p>
+            <div>
+              <button className='px-2 rounded-lg bg-sky-200 hover:bg-sky-300 text-sm' onClick={() => handleViewResult_unlockreq(item.resultId, item._id)}>View Result</button>
+            </div>
+            {reqestedResult && resultInd===item._id && (
+              <ViewResult selectedResult={reqestedResult} studentsData={studentsData}/>
+            )}
+            {resultInd===item._id && 
+              <div className='mt-2 col-span-3 flex justify-end'>
+                <button className='px-2 py-1 bg-green-400 hover:bg-green-500 rounded-lg' onClick={()=>approveUnlockResult(item._id,item.resultId)}>Approve</button>
+              </div>
+            }
+          </div>
+        ))}
+
         </div>
       )}
     </div>

@@ -6,7 +6,7 @@ import {TeacherContext} from "../Teacher/TeacherDashboard.jsx";
 
 
 
-const TeacherLeftPanel = ({name, id}) => {
+const TeacherLeftPanel = ({teacherData}) => {
     const navigate = useNavigate();
     const {selectedItem, setSelectedItem } = useContext(TeacherContext)
     return (
@@ -21,8 +21,9 @@ const TeacherLeftPanel = ({name, id}) => {
             <div className="w-7/12 m-2 mt-4">
                 <img className="admin-profile" alt="Student profile" src={require('../../img/teacher.png')} />
             </div>
-            <h2 className="font-bold">{name}</h2>
-            <h2 className="font-bold">Id : {id}</h2>
+            <h2 className="font-extrabold">{teacherData.name}</h2>
+            <h2 className="font-bold">Id : {teacherData.ID}</h2>
+            <h2 className="font-bold">Class Teacher : {teacherData.class_teacher}</h2>
 
             <div className="Details flex flex-col mt-6 w-full">
                 <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'dashboard' ? "bg-red-200" : ""

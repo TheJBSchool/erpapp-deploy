@@ -39,7 +39,7 @@ export const TeacherDashboard = () => {
         <Header />
 
         <div className="h-full w-full flex p-5 justify-between gap-7">
-          <TeacherLeftPanel name={teacherData.name} id={teacherData.ID}/>
+          <TeacherLeftPanel teacherData={teacherData}/>
           <div className="flex flex-col w-10/12 h-full ">
             {selectedItem === "dashboard" && (
               <>

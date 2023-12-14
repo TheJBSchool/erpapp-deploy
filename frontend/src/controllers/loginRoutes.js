@@ -705,6 +705,17 @@ export const get_result= async (obj)=> {
     return ans;
 }
 
+export const get_resultById= async (id)=> {
+    const res = await fetch(`${base}/getresult/${id}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
 export const result_approval= async (id)=> {
     const res = await fetch(`${base}/resultrequest/${id}`, {
         method: 'GET',
@@ -736,6 +747,57 @@ export const lock_result = async (res_id) => {
   try {
 
     const res = await fetch(`${base}/lockresult/${res_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },  
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const unlock_req = async (obj) => {
+    console.log("loginRoutes unlock",obj)
+    const res = await fetch(`${base}/unlockreq`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};
+
+export const all_unlock_resultreq = async (adminId)=> {
+    const res = await fetch(`${base}/unlockreq/${adminId}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const delete_unlock_resultreq = async (reqId)=> {
+    const res = await fetch(`${base}/unlockreq/${reqId}`, {
+        method: 'DELETE',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const approve_unlock_result = async (resultId) => {
+  try {
+
+    const res = await fetch(`${base}/unlockreq/${resultId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
