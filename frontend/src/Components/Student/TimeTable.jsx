@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { bgcolor2 } from "../Home/custom.js";
 import { getTimetableByClass, saveTimetable } from '../../controllers/loginRoutes.js';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const TimeTable = ({stu_class}) => {
+const TimeTable = ({stu_class, stu_section}) => {
   const [class_timeTable, setClass_timeTable]= useState();
   useEffect(()=>{
-    getTimetableByClass(stu_class).then((resp)=>{
+    getTimetableByClass(stu_class+stu_section).then((resp)=>{
       setClass_timeTable(resp);
     })
   },[])
@@ -23,7 +24,7 @@ const TimeTable = ({stu_class}) => {
             <h1 className="font-bold ">TimeTable</h1>
         </div>
 
-        <div style={bgcolor2} className="border-2 mt-5 border-red-300 rounded-lg p-10 flex justify-center ">
+        { class_timeTable &&  <div style={bgcolor2} className="border-2 mt-5 border-red-300 rounded-lg p-10 flex justify-center ">
             <div className="table-container " style={{ overflowX: 'auto' }}>
               <table className="table-auto min-w-max bg-white">
                 <thead>
@@ -47,12 +48,12 @@ const TimeTable = ({stu_class}) => {
                         <td key={cellIndex} className="border px-4 py-2 text-sm text-center">
                           {cell.type=== "Period"? (
                             <>
+                              <p className='font-semibold text-blue-400'> {cell.subject}</p>
                               <p> {cell.teacher}</p>
-                              <p className='font-semibold'> {cell.subject}</p>
                             </>
 
                           ):(
-                            <p>{cell.type}</p>
+                            <p className='text-red-400'>{cell.type}</p>
                           )}
                         </td>
                       ))}
@@ -63,6 +64,12 @@ const TimeTable = ({stu_class}) => {
               
               </div>
         </div>
+        }
+        { !class_timeTable&&
+          <div className='flex justify-center p-10'>
+            <CircularProgress />
+          </div>
+        }
 
     </div>
   )

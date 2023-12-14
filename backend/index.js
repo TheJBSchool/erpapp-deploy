@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 4000;
 const cors=require("cors");
 // app.use(cors());
 const corsOptions ={
-   origin:'https://erp.thejbschool.com'
+//    origin:'https://erp.thejbschool.com'
+   origin:'*'
 }
 
 app.use(cors(corsOptions)) 

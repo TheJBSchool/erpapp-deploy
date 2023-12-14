@@ -7,7 +7,7 @@ import { register_student, all_students, studentUpdate, studentDelete, searchStu
 import StudentForm from './StudentForm';
 import '../../App.css'
 
-const ManageStudent = () => {
+const ManageStudent = ({adminId}) => {
   const [students, setStudents] = useState([]);
   const [finalStudents, setFinalStudents] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
@@ -47,6 +47,7 @@ const ManageStudent = () => {
     DOB: '',
     address: '',
     van: '',
+    underBy:adminId
   });
   const [note, setNote] = useState("");
   const [temp, tempNote] = useState("x");
@@ -107,7 +108,8 @@ const ManageStudent = () => {
       blood_group: '',
       DOB: '',
       address: '',
-      van: ''
+      van: '',
+      underBy:adminId
     });
     setSuccess(false);
   };

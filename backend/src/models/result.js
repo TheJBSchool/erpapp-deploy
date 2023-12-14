@@ -20,6 +20,10 @@ const resultSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  totalSubjectMarks:{
+    type: String,
+    required: true
+  },
   session: {
     type: String,
     required: true

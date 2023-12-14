@@ -45,10 +45,10 @@ export const StudentDashboard = () => {
   },[]);
   useEffect(()=>{
     if(studentData){
-      console.log("studentData",studentData)
+      // console.log("studentData",studentData)
       stu_circular(studentData.class).then((resp)=>{
         if(resp.length>0){
-          console.log("resp",resp)
+          // console.log("resp",resp)
           setAllStuCirculars(resp);
           setAllNotifications(resp)
         }
@@ -104,11 +104,11 @@ export const StudentDashboard = () => {
           )}
           {selectedItem === "myProfile" && <MyProfile studentData={studentData}/>    }
           {selectedItem === "attendace" && <Attendance />}
-          {selectedItem === "result" && <Result />}
+          {selectedItem === "result" && <Result studentData={studentData} />}
           {selectedItem === "syllabus" && <Syllabus />}
           {selectedItem === "lostFound" && <LostAndFound studentData={studentData}/>}
 
-          {selectedItem === "timeTable" && <TimeTable stu_class={studentData.class}/>}
+          {selectedItem === "timeTable" && <TimeTable stu_class={studentData.class} stu_section={studentData.section}/>}
           {selectedItem === "circular" && <Circular circular={allStuCirculars} />}
           {selectedItem === "exam" && <Exam />}
           {selectedItem === "events" && <Events />}

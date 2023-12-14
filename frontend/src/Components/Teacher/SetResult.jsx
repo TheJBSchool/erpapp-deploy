@@ -80,6 +80,7 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
     const obj = {
         class: teacherData.class_teacher,
         examType: examTypeSelect,
+        totalSubjectMarks: totalMarks,
         session: session,
         studentsMarks: marks,
         underBy: teacherData.underBy,

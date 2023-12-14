@@ -760,7 +760,6 @@ export const lock_result = async (res_id) => {
 };
 
 export const unlock_req = async (obj) => {
-    console.log("loginRoutes unlock",obj)
     const res = await fetch(`${base}/unlockreq`, {
         method: 'POST',
         body: JSON.stringify(obj),
@@ -808,4 +807,16 @@ export const approve_unlock_result = async (resultId) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+export const student_results = async (obj) => {
+    const res = await fetch(`${base}/studentresults`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
 };

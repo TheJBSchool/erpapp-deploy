@@ -78,7 +78,8 @@ const teacherSchema = new mongoose.Schema({
         required: true
     },
     underBy:{
-        type: mongoose.ObjectId
+        type: mongoose.ObjectId,
+        required: true
     }
 });
 

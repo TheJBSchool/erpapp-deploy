@@ -909,4 +909,34 @@ router.patch('/unlockreq/:result_id',async (req, res) => {
   return res.status(201).json({ data, status: 201 });
 });
 
+router.post('/studentresults', async (req, res) => {
+  try {
+    const { studentId, adminId, stuclass } = req.body;
+
+    const studentResult = await Result.find({
+      class: stuclass,
+      underBy: adminId,
+      // "locked": true,
+      [`studentsMarks.${studentId}`]: { $exists: true }
+    });
+
+    if (studentResult.length === 0) {
+      return res.status(404).json({ message: `No results found for student ID ${studentId} in class ${stuclass} under admin ${adminId}.` });
+    }
+
+    const formattedResults = studentResult.map(result => {
+      return {
+        session: result.session,
+        examType: result.examType,
+        totalSubjectMarks: result.totalSubjectMarks,
+        marks: result.studentsMarks[studentId]
+      };
+    });
+
+    res.status(200).json({ studentId, results: formattedResults });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

@@ -84,6 +84,10 @@ const studentSchema = new mongoose.Schema({
         type: String,
         enum: ["2022-23", "2023-24"]
     },
+    underBy:{
+        type: mongoose.ObjectId,
+        required: true
+    },
     feePayments: [
         {
             quarter: Number,         // 1, 2, 3, or 4
