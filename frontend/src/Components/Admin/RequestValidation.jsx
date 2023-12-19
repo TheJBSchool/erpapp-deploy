@@ -132,16 +132,19 @@ const ResquestValidation = ({adminId}) => {
       {selectedOption === 'result' && (
         <div>
           {resultRequests.length>0 && resultRequests.map((item,ind)=>{
-            return <div key={ind} className=' bg-slate-100 border-2 rounded-lg m-2 p-2 grid grid-cols-3 gap-4'>
-              <p>Session : {item.session}</p>
-              <p>Class: {item.class}</p>
-              <p>Examination: {item.examType}</p>
-              <p>Created By : {item.createdBy.name}</p>
+            return <div key={ind} className=' bg-slate-100 border-2 rounded-lg m-2 p-2  grid grid-cols-3 gap-4'>
+              <p className='font-bold'>Session : <strong className='ml-2 text-zinc-600'>{item.session} </strong></p>
+              <p className='font-bold'>Class: <strong className='ml-2 text-zinc-600'> {item.class}</strong></p>
+              <p className='font-bold'>Examination: <strong className='ml-2 text-zinc-600'> {item.examType}</strong></p>
+              <p className='font-bold'>Created By : <strong className='ml-2 text-zinc-600'>{item.createdBy.name} </strong></p>
               <div>
                 <button className='px-2 rounded-lg bg-sky-200 hover:bg-sky-300 text-sm' onClick={() => handleViewResult(item,item._id)}>View Result</button>
               </div>
               {selectedResult && resultInd===item._id && (
-                <ViewResult selectedResult={selectedResult} studentsData={studentsData}/>
+                <>
+                  <p className='font-bold col-span-3'>Total Marks for Each Subject : <strong className='ml-2 text-zinc-600 '>{selectedResult.totalSubjectMarks} </strong></p>
+                  <ViewResult selectedResult={selectedResult} studentsData={studentsData}/>
+                </>
               )}
               {resultInd===item._id && 
                 <div className='col-span-3 flex justify-end'>
@@ -163,7 +166,15 @@ const ResquestValidation = ({adminId}) => {
               <button className='px-2 rounded-lg bg-sky-200 hover:bg-sky-300 text-sm' onClick={() => handleViewResult_unlockreq(item.resultId, item._id)}>View Result</button>
             </div>
             {reqestedResult && resultInd===item._id && (
-              <ViewResult selectedResult={reqestedResult} studentsData={studentsData}/>
+              <>
+                <div className=' bg-slate-100 border-2 rounded-lg m-2 p-2  grid grid-cols-3 gap-4'>
+                  <p className='font-bold'>Session : <strong className='ml-2 text-zinc-600'>{reqestedResult.session}</strong> </p>
+                  <p className='font-bold'>Class: <strong className='ml-2 text-zinc-600'>{reqestedResult.class}</strong></p>
+                  <p className='font-bold'>Examination:<strong className='ml-2 text-zinc-600'>{reqestedResult.examType}</strong> </p>
+                  <p className='font-bold'>Total Marks for Each Subject : <strong className='ml-2 text-zinc-600'>{reqestedResult.totalSubjectMarks} </strong></p>
+                </div>
+                <ViewResult selectedResult={reqestedResult} studentsData={studentsData}/>
+              </>
             )}
             {resultInd===item._id && 
               <div className='mt-2 col-span-3 flex justify-end'>

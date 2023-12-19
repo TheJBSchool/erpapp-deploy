@@ -916,7 +916,7 @@ router.post('/studentresults', async (req, res) => {
     const studentResult = await Result.find({
       class: stuclass,
       underBy: adminId,
-      // "locked": true,
+      "locked": true,
       [`studentsMarks.${studentId}`]: { $exists: true }
     });
 
