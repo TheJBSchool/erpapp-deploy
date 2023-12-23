@@ -52,12 +52,6 @@ const AdminLeftPanel = ({adminData}) => {
                     <h2 className="font-bold ">Attendance</h2>
                 </div>
 
-                <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'result' ? "bg-red-200" : ""
-                    }`} onClick={() => setSelectedItem('result')}>
-                    <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/result-icon.png')} />
-                    <h2 className="font-bold ">Result</h2>
-                </div>
-
                 <div className={`flex justify-items-start mb-5 rounded-md hover:bg-red-200 hover:cursor-pointer ${selectedItem === 'fees' ? "bg-red-200" : ""
                     }`} onClick={() => setSelectedItem('fees')}>
                     <img className="h-7 w-7 mr-5" alt="Fees icon" src={require('../../img/fees-icon.png')} />

@@ -743,6 +743,22 @@ export const approve_result = async (res_id, admin_id) => {
   }
 };
 
+export const decline_result = async (res_id, admin_id) => {
+  try {
+
+    const res = await fetch(`${base}/declineresult/${res_id}/${admin_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },  
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const lock_result = async (res_id) => {
   try {
 

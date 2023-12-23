@@ -8,6 +8,7 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
   const [session, setSession]= useState('');
   const [totalMarks, setTotalMarks] = useState(0);
   const [currentFetchedResult, setCurrentFetchedResult] = useState({});
+  const [inputError, setInputError] = useState('');
 
   const { isLoading, toggleLoading } = useContext(LoadingContext);
 
@@ -90,8 +91,8 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
         },
         approved: false,
         locked: false,
-        date_created: new Date(),
-        last_modified: null,
+        editable:false,
+        last_modified: new Date(),
     }
     // console.log('result',obj);
     save_result(obj).then((resp)=>{
@@ -216,25 +217,40 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
                           currentFetchedResult.examType &&
                           currentFetchedResult.examType === examTypeSelect &&
                           currentFetchedResult.session === session &&
-                          currentFetchedResult.approved === false || currentFetchedResult.locked === true)
+                          currentFetchedResult.editable === false )
                       }
                       min={0}
                       max={totalMarks}
                       value={marks[student._id]?.[subject.subject] || ""}
-                      onChange={(e) =>
-                        handleMarksChange(
-                          student._id,
-                          subject.subject,
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => {
+                        const inputValue = parseInt(e.target.value);
+                        if (!isNaN(inputValue)) {
+                          if (inputValue >= 0 && inputValue <= totalMarks) {
+                            handleMarksChange(student._id, subject.subject, inputValue);
+                            setInputError(''); // Clear any previous error
+                          } else if (inputValue < 0) {
+                            setInputError('Value should be greater than or equal to 0');
+                          } else {
+                            setInputError(`Value should be less than or equal to ${totalMarks}`);
+                          }
+                        } else {
+                          handleMarksChange(student._id, subject.subject, "");
+                          setInputError('Please enter a valid number or Leave it in case of Absent');
+                        }
+                      }}
                     />
+                    
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
+        {inputError && ( // Display error message if inputError is not empty
+          <div className='mt-4'>
+              <span className="text-red-500 text-sm">* {inputError}</span>
+          </div>
+        )}
       </div>
       <div className="flex flex-col items-end mt-2">
         <div className='flex justify-end'>
@@ -246,6 +262,7 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
               currentFetchedResult.examType &&
               currentFetchedResult.examType === examTypeSelect &&
               currentFetchedResult.session === session &&
+              currentFetchedResult.editable === false &&
               currentFetchedResult.approved === false ||
               currentFetchedResult.locked === true
                 ? "hidden"
@@ -272,7 +289,7 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
           currentFetchedResult.examType &&
           currentFetchedResult.examType === examTypeSelect &&
           currentFetchedResult.session === session &&
-          (currentFetchedResult.approved == false ? (
+          (currentFetchedResult.editable === false && currentFetchedResult.approved == false ? (
             <p className="text-red-400">
               *This Result is yet to approved by Admin
             </p>

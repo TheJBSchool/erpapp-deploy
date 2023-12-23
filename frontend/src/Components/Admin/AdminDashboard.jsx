@@ -10,7 +10,6 @@ import ManageStudents from "./ManageStudents.jsx";
 import ManageTeachers from "./ManageTeachers.jsx";
 import MyProfile from "./MyProfile.jsx";
 import Payroll from "./Payroll.jsx";
-import Result from "./Result.jsx";
 import Syllabus from "./Syllabus.jsx";
 import TimeTable from "./TimeTable.jsx";
 import Communication from "./Communication.jsx";
@@ -117,7 +116,6 @@ const AdminDashboard = () => {
           {/* Make them router */}
           {selectedItem === "myProfile" && <MyProfile adminData={adminData}/>    }
           {selectedItem === "attendace" && <Attendance />}
-          {selectedItem === "result" && <Result />}
           {selectedItem === "fees" && <Fees />}
           {selectedItem === "payroll" && <Payroll />}
           {selectedItem === "syllabus" && <Syllabus />}

@@ -807,7 +807,7 @@ router.post('/saveresult', async (req, res) => {
 
 router.post('/getresult', async (req, res) => {
   try {
-      const resp = await Result.find({class: req.body.class, session: req.body.session, examType: req.body.examType});
+      const resp = await Result.find({class: req.body.class, session: req.body.session, examType: req.body.examType}).sort({ date_created: 1 });
       if (!resp) {
         return res.status(409).json({ message: "Failed to find" });
       }
@@ -833,7 +833,7 @@ router.get('/getresult/:id', async (req, res) => {
 router.get('/resultrequest/:id', async (req, res) => {
   const admin_id = req.params.id;
   try {
-      const resp = await Result.find({underBy:admin_id,approved: false});
+      const resp = await Result.find({underBy:admin_id,approved: false,editable:false});
       if (!resp) {
         return res.status(409).json({ message: "Failed to find" });
       }
@@ -845,12 +845,29 @@ router.get('/resultrequest/:id', async (req, res) => {
 
 router.patch('/approveresult/:result_id/:admin_id',async (req, res) => {
   const { result_id, admin_id } = req.params;
-  const data = await Result.findOneAndUpdate({_id:result_id}, { approved: true }, { upsert: true})
+  const data = await Result.findOneAndUpdate({_id:result_id}, { approved: true, editable:true }, { upsert: true})
   if (data.nModified === 0) {
-    return res.status(404).json({ message: "Title not updated" });
+    return res.status(404).json({ message: "Result is not approved" });
   }
   try {
-      const resp = await Result.find({underBy:admin_id,approved: false});
+      const resp = await Result.find({underBy:admin_id,approved: false,editable:false});
+      if (!resp) {
+        return res.status(409).json({ message: "Failed to find" });
+      }
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.status(409).json({ "error": e.message });
+  }
+});
+
+router.patch('/declineresult/:result_id/:admin_id',async (req, res) => {
+  const { result_id, admin_id } = req.params;
+  const data = await Result.findOneAndUpdate({_id:result_id}, { approved: false, editable:true }, { upsert: true})
+  if (data.nModified === 0) {
+    return res.status(404).json({ message: "Result approval declined Failed" });
+  }
+  try {
+      const resp = await Result.find({underBy:admin_id,approved: false,editable:false });
       if (!resp) {
         return res.status(409).json({ message: "Failed to find" });
       }
@@ -862,7 +879,7 @@ router.patch('/approveresult/:result_id/:admin_id',async (req, res) => {
 
 router.patch('/lockresult/:result_id',async (req, res) => {
   const result_id= req.params.result_id;
-  const data = await Result.findOneAndUpdate({_id:result_id}, { locked: true }, { upsert: true, new:true})
+  const data = await Result.findOneAndUpdate({_id:result_id}, { locked: true, editable: false }, { upsert: true, new:true})
   if (data.nModified === 0) {
     return res.status(404).json({ message: "Title not updated" });
   }
@@ -883,7 +900,7 @@ router.post('/unlockreq', async (req, res) => {
 router.get('/unlockreq/:id', async (req, res) => {
   const admin_id= req.params.id;
     try {
-        const all_unlockresultreq = await ResultReq.find({underBy:admin_id});
+        const all_unlockresultreq = await ResultReq.find({underBy:admin_id}).sort({ date_created: 1 });
         return res.status(201).json(all_unlockresultreq);
     } catch (e) {
         return res.json({ "error": e.message });
@@ -902,7 +919,7 @@ router.delete('/unlockreq/:reqid', async (req, res) => {
 
 router.patch('/unlockreq/:result_id',async (req, res) => {
   const {result_id } = req.params;
-  const data = await Result.findOneAndUpdate({_id:result_id}, {locked:false })
+  const data = await Result.findOneAndUpdate({_id:result_id}, {locked:false, editable:true })
   if (data.nModified === 0) {
     return res.status(404).json({ message: "Title not updated" });
   }

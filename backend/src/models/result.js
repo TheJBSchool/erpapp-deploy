@@ -40,6 +40,10 @@ const resultSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  editable: {
+    type: Boolean,
+    default: true
+  },
   date_created: {
     type: Date,
     required: true,

@@ -9,6 +9,8 @@ const Result = ({studentData}) => {
   const [selectedExamType, setSelectedExamType] = useState('');
   const [selectedResults, setSelectedResults] = useState([]);
 
+  const [fetchedFromAPI, setFetchedFromAPI] = useState(false)
+
 
   useEffect(()=>{
     const studentclass = studentData.class + studentData.section;
@@ -22,6 +24,8 @@ const Result = ({studentData}) => {
       if(resp && resp.results){
         setResults(resp.results);
       }
+    }).finally(()=>{
+      setFetchedFromAPI(true);
     })
   },[])
 
@@ -126,6 +130,7 @@ const Result = ({studentData}) => {
                                 <th className="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Subject</th>
                                 <th className="px-6 py-3 font-bold text-gray-500 uppercase tracking-wider text-center">Obtained Marks</th>
                                 <th className="px-6 py-3 font-bold text-gray-500 uppercase tracking-wider text-center">Total Marks</th>
+                                <th className="px-6 py-3 font-bold text-gray-500 uppercase tracking-wider text-center">Percentage</th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -136,32 +141,36 @@ const Result = ({studentData}) => {
                                       <td key={`${result.examType}-${subject}`} className="px-6 py-4 whitespace-nowrap text-md text-gray-500 text-center">{result.marks[subject]}</td>
                                   ))}
                                   <td className="px-6 py-4 whitespace-nowrap text-md text-gray-500 text-center ">{selectedResults[0].totalSubjectMarks}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-md text-gray-500 text-center ">{((selectedResults[0].marks[subject]/selectedResults[0].totalSubjectMarks)*100).toFixed(2)} %</td>
                                 </tr>
                               ))}
                               <tr>
-                                <td className="px-6 py-4 whitespace-nowrap text-md font-bold border-t-2 border-gray-400">Total Marks</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-md font-bold border-t-2 border-gray-400">Total</td>
                                 <td className="px-6 py-4 whitespace-nowrap font-bold text-md border-t-2 border-gray-400 text-center">{examTypeTotals[selectedResults[0].examType]}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-md font-bold border-t-2 border-gray-400 text-center">{selectedResults[0].totalSubjectMarks * totalSubjectMarks[selectedResults[0].examType]}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-xl font-bold border-t-2 border-gray-400 text-center text-green-600">{((examTypeTotals[selectedResults[0].examType])/(selectedResults[0].totalSubjectMarks * totalSubjectMarks[selectedResults[0].examType])*100).toFixed(2)}%</td>
                               </tr>
                             </tbody>
                           </table>
-                          <div className='mt-4 bg-slate-100 p-2'>
-                            <h1 className='font-bold text-gray-600'>Percentage: <strong className='text-green-600'>{((examTypeTotals[selectedResults[0].examType])/(selectedResults[0].totalSubjectMarks * totalSubjectMarks[selectedResults[0].examType])*100).toFixed(2)}%</strong></h1>
-                          </div>
                         </div>
                       </div>
                     )}
                     {selectedSession && selectedExamType && selectedResults.length===0 && (
                       <div className='flex justify-center mt-6 font-bold text-red-500'>
-                        <p>This Result is not yet Declared !!!!!! </p>
+                        <p>This result is not yet Declared for given session and examination !!!!!! </p>
                       </div>
                     )}
                   </div>
                 }
-                {results.length===0 && 
+                {!fetchedFromAPI && results.length===0 && 
                   <div className='flex justify-center p-10'>
                     <CircularProgress />
                   </div>
+                }
+                {fetchedFromAPI && results.length===0 && 
+                  <div className='flex justify-center mt-6 font-bold text-red-500'>
+                    <p>Your Result is not yet Declared !!!!!! </p>
+                  </div>  
                 }
             </div>
         </div>

@@ -26,7 +26,9 @@ const Result = ({teacherData}) => {
   const [studentNames, setStudentNames]= useState([]);
 
   const [newExamType, setNewExamType] = useState(false);
-  const [customExamType, setCustomExamType] = useState('');
+
+  const [addRowSubject, setAddRowSubject] = useState(false);
+  const [addRowExam, setAddRowExam] = useState(false);
 
   const { isLoading, toggleLoading } = useContext(LoadingContext);
 
@@ -64,11 +66,15 @@ const Result = ({teacherData}) => {
   };
 
   const handleAddSubjectRow = () => {
+    setAddRowSubject(true);
+  };
+  const handleSave = () => {
     if (newSubject && selectedTeacher) {
       const newRow = { subject: newSubject, teacher: selectedTeacher };
       setSubjectRows([...subjectRows, newRow]);
       setNewSubject('');
       setSelectedTeacher('');
+      setAddRowSubject(false);
     }
   };
 
@@ -89,12 +95,16 @@ const Result = ({teacherData}) => {
   };
 
   const handleAddExamRow = () => {
+    setAddRowExam(true);
+  };
+  const handleSaveExam = () => {
     if (newExam && totalMarks) {
       const newRow = { examName: newExam, totalMarks: totalMarks };
       setExamRows([...examRows, newRow]);
       setNewExam('');
       setTotalMarks('');
       setNewExamType(false);
+      setAddRowExam(false);
     }
   };
 
@@ -233,6 +243,8 @@ const Result = ({teacherData}) => {
                 </tr>
               </thead>
               <tbody>
+              { addRowSubject && ( <>
+
                 <tr className='border-2 p-3'>
                   <td>
                     <input
@@ -258,12 +270,13 @@ const Result = ({teacherData}) => {
                     </select>
                   </td>
                 </tr>
+              </>)}
 
                 {subjectRows && subjectRows.map((row, index) => (
                   <tr key={index}>
-                    <td className="border-2 p-3 bg-blue-50">{row.subject}</td>
-                    <td className="border-2 p-3 bg-blue-50">{row.teacher}</td>
-                    <td className="border-2 p-3">
+                    <td className="border-2 p-3 bg-blue-50 w-5/12">{row.subject}</td>
+                    <td className="border-2 p-3 bg-blue-50 w-5/12">{row.teacher}</td>
+                    <td className="border-2 p-3 ">
                       <button
                         onClick={() => handleDeleteSubjectRow(index)}
                         className="px-2 py-1 bg-red-500 text-white rounded-md"
@@ -277,6 +290,12 @@ const Result = ({teacherData}) => {
             </table>
           </div>
           <div className="my-4">
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 mr-4 text-white rounded-md"
+            >
+              Save
+            </button>
             <button
               onClick={subjectSubmit}
               className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
@@ -308,6 +327,8 @@ const Result = ({teacherData}) => {
                   </tr>
                 </thead>
                 <tbody>
+                {addRowExam && (<>
+
                   <tr className='border-2 p-3'>
                     <td>
                       {newExamType? 
@@ -346,6 +367,7 @@ const Result = ({teacherData}) => {
                       />
                     </td>
                   </tr>
+                </>)}
 
                   {examRows && examRows.map((row, index) => (
                     <tr key={index}>
@@ -365,6 +387,12 @@ const Result = ({teacherData}) => {
               </table>
             </div>
             <div className="my-4">
+              <button
+                onClick={handleSaveExam}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 mr-4 text-white rounded-md"
+              >
+                Save
+              </button>
               <button
                 onClick={examTypeSubmit}
                 className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
