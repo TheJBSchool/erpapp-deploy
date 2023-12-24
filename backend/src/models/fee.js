@@ -64,7 +64,11 @@ const feeSchema = new mongoose.Schema({
     },
     late_fee_x: {
         type: Number,
-    }
+    },
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
 
 });
 

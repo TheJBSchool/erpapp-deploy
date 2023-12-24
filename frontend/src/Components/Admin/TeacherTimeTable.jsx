@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getTeacherTimeTable } from '../../controllers/loginRoutes.js';
 
-const TeacherTimeTable = ({ teachers }) => {
+const TeacherTimeTable = ({adminId, teachers }) => {
     const [selectedTeacher, setSelectedTeacher] = useState();
     const [teacherTimetable, setTeacherTimetable] = useState([]);
 
@@ -13,7 +13,7 @@ const TeacherTimeTable = ({ teachers }) => {
 
         if (e.target.value) {
             try {
-                const timetableData_teacher = await getTeacherTimeTable(e.target.value);
+                const timetableData_teacher = await getTeacherTimeTable(adminId, e.target.value);
                 setTeacherTimetable(timetableData_teacher);
             } catch (error) {
                 console.log("Error fetching timetable:", error);
@@ -49,7 +49,7 @@ const TeacherTimeTable = ({ teachers }) => {
                         className="mb-2 w-fit"
                     >
                         <option value="">Select Teacher</option>
-                        {teachers.map((teacher, index) => (
+                        {teachers && teachers.map((teacher, index) => (
                             <option key={index} value={teacher.name}>
                                 {teacher.name}
                             </option>

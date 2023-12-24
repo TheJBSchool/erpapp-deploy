@@ -3,28 +3,42 @@ import { Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { bgcolor1, bgcolor2 } from "../Home/custom.js";
-import { register_student, all_students, studentUpdate, studentDelete, searchStudents, studentSearchBar } from '../../controllers/loginRoutes.js';
+import { register_student, all_students, studentUpdate, studentDelete } from '../../controllers/loginRoutes.js';
 import StudentForm from './StudentForm';
 import '../../App.css'
 
 const ManageStudent = ({adminId}) => {
   const [students, setStudents] = useState([]);
-  const [finalStudents, setFinalStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
     group: "",
     class: "",
-    section: "",
-    ID: "",
-    name: ""
+    section: ""
   });
   useEffect(() => {
-    all_students().then((resp) => {
+    all_students(adminId).then((resp) => {
       setStudents(resp.all_students);
+      setFilteredStudents(resp.all_students);
     })
   }, [])
-  useEffect(()=>{
-    filterStudents();
-  },[searchFilter])
+
+  useEffect(() => {
+    if(students && searchFilter){
+      if(searchFilter.group ===""){
+        setFilteredStudents(students);
+        return;
+      }
+      let filteredStudents = students.filter( student =>{
+        return (
+          student.group=== searchFilter.group && (searchFilter.class==="" || student.class=== searchFilter.class) && (searchFilter.section==="" || student.section===searchFilter.section)  
+        )
+      })
+      if(filteredStudents){
+        setFilteredStudents(filteredStudents);
+      }
+    }
+  }, [searchFilter])
+
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -57,6 +71,10 @@ const ManageStudent = ({adminId}) => {
   const [StuEditId, setStuEditId] = useState();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const [searchName, setSearchName]= useState('')
+  const [searchStudentId, setSearchStudentId]= useState('')
+
   const handleNoteChange = (event) => {
     setNote(event.target.value);
   };
@@ -67,15 +85,6 @@ const ManageStudent = ({adminId}) => {
       [name]: value,
     }));
   };
-  const filterStudents = () => {
-    setFinalStudents([]);
-    let arr = [];
-    for (let i = 0; i < students.length; i++) {
-      if ((searchFilter.name && !students[i].name.includes(searchFilter.name))||(searchFilter.class && searchFilter.class !== students[i].class)||(searchFilter.group && searchFilter.group !== students[i].group)||(searchFilter.ID && !students[i].ID.includes(searchFilter.ID))||(searchFilter.section && searchFilter.section !== students[i].section)) { }
-      else arr.push(students[i]);
-    } 
-    setFinalStudents(arr);
-  }
   const findStudentToEdit = (id) => {
     setStuEditId(id);
     setFormData(students.find((student) => student._id === id));
@@ -180,7 +189,7 @@ const ManageStudent = ({adminId}) => {
         .then(() => {
           // Update students array and handle success
           setStudents(students.filter(student => student._id !== studentToDeleteId));
-          setFinalStudents(students.filter(student => student._id !== studentToDeleteId));
+          setFilteredStudents(students.filter(student => student._id !== studentToDeleteId));
           setStudentToDeleteId(null);
           setShowDeleteConfirmation(false);
           // console.log("Deleted successfully");
@@ -209,6 +218,21 @@ const ManageStudent = ({adminId}) => {
         [name]: value,
       }));
   };
+
+  const handleSearchByName = (e)=>{
+    let s_name= e.target.value;
+    setSearchName(s_name);
+    s_name = s_name.toLowerCase()
+    let filteredStudents = students.filter((item) => item.name.toLowerCase().includes(s_name))
+    setFilteredStudents(filteredStudents);
+  }
+
+  const handleSearchByStudentId = (e)=>{
+    let s_id= e.target.value;
+    setSearchStudentId(s_id)
+    let filteredStudents = students.filter((item) => item.ID.toLowerCase().includes(s_id))
+    setFilteredStudents(filteredStudents);
+  }
 
   return (
     <>
@@ -262,8 +286,8 @@ const ManageStudent = ({adminId}) => {
                     name='ID'
                     className="w-32 px-2 py-1 border rounded mr-4 text-sm"
                     placeholder="&#128269; Enter User ID"
-                    value={searchFilter.ID}
-                    onChange={handleDropDownChange}
+                    value={searchStudentId}
+                    onChange={handleSearchByStudentId}
                   />
                 </div>
                 <div className="relative">
@@ -272,8 +296,8 @@ const ManageStudent = ({adminId}) => {
                     name='name'
                     className="w-32 px-2 py-1 border rounded mr-4 text-sm"
                     placeholder="&#128269; Enter Name"
-                    value={searchFilter.name}
-                    onChange={handleDropDownChange}
+                    value={searchName}
+                    onChange={handleSearchByName}
                   />
                 </div>
                 {/* dropdown filters */}
@@ -393,7 +417,7 @@ const ManageStudent = ({adminId}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {finalStudents.map((val, ind) => (
+                    {filteredStudents && filteredStudents.map((val, ind) => (
                       <tr key={val._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td className='px-1 py-2 font-medium text-gray-900 border text-center whitespace-nowrap dark:text-white'>{ind + 1}</td>
                         <td className='px-1 py-2 font-medium text-gray-900 border text-center whitespace-nowrap dark:text-white'>{val.name}</td>

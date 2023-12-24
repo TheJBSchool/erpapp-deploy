@@ -11,7 +11,7 @@ import { useReactToPrint } from 'react-to-print';
 // currFee -> Fee amount, deadlines for each quarter, other details for a current session and class
 // quarterIcons -> each quarter fee paid or not (true/false) [1 based indexing]
 // quarterDeadlines -> quarter's deadlines [1 based indexing]
-const Fees = () => {
+const Fees = ({adminId}) => {
   const [payOther, setPayOther] = useState(false); //state for other(transportation fee) pay btn 
   const [quarterSelectIndex, setQuarterSelectIndex] = useState();
   const [quarterIcons, setQuarterIcons] = useState([false, false, false, false, false]); // first false for other
@@ -49,6 +49,7 @@ const Fees = () => {
     annualFee: 1000,
     transportationFee: 200,
     lateFee: 0,
+    underBy: adminId
   });
 
   useEffect(() => {
@@ -56,7 +57,7 @@ const Fees = () => {
     setCurrentDate(formattedDate);
   },[]);
   useEffect(()=>{
-    getStudent({session: formData.session, section: formData.section, class: formData.studentClass}).then((resp)=>{
+    getStudent({session: formData.session, section: formData.section, class: formData.studentClass},adminId).then((resp)=>{
       setFilteredData(resp.data);
     })
   });
@@ -90,6 +91,7 @@ const Fees = () => {
       annualFee: '',
       transportationFee: '',
       lateFee: '',
+      underBy: adminId
   });
   // console.log(quarterIcons);
   const [selectedSession, setSelectedSession] = useState("");
@@ -146,6 +148,7 @@ const Fees = () => {
       date3: row['Date 3'],
       date4: row['Date 4'],
       late_fee_x: row['Late Fees after X days'],
+      underBy: adminId
     }));
 
     setFeeSchemaData(updatedSchemaData);
@@ -289,7 +292,7 @@ const Fees = () => {
 
   const searchReceipt = () => {
     if (formData.session && formData.section && formData.studentClass && fullName) {
-      getFeeDetails({ session: stuSelected.session, class: stuSelected.class }).then((resp) => {
+      getFeeDetails({ session: stuSelected.session, class: stuSelected.class },adminId).then((resp) => {
         setCurrFee(resp.data);
         setDeadlines(resp.data.date1);
         setPayBtn(true);

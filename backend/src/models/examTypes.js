@@ -11,6 +11,10 @@ const examTypeSchema = new mongoose.Schema({
             totalMarks : String   
         }
     ],
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
 })
 
 module.exports = mongoose.model("ExamType", examTypeSchema);

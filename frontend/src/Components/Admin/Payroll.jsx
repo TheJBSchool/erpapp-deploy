@@ -6,7 +6,7 @@ import { LoadingContext } from '../../App.js';
 import DigitalBahi from './DigitalBahi.jsx';
 import {registerStaff} from '../../controllers/loginRoutes.js';
 
-const Payroll = () => {
+const Payroll = ({adminId}) => {
   const [exitStaffData, setExistStaffData] = useState([]); // existing staff-> table data store in it
   const [notValidTable, setNotValidTable] = useState(0);
   const { isLoading, toggleLoading } = useContext(LoadingContext);
@@ -29,7 +29,8 @@ const Payroll = () => {
     remaining_leaves: 0,
     total_salary: null,
     deducted_salary: 0,
-    remaining_amount: 0
+    remaining_amount: 0,
+    underBy: adminId
   })
   // console.log(payrollData);
   const [payrollDropdown, setPayrollDropdown] = useState({
@@ -90,7 +91,9 @@ const Payroll = () => {
       remaining_leaves: 0,
       total_salary: null,
       deducted_salary: 0,
-      remaining_amount: 0}
+      remaining_amount: 0,
+      underBy: adminId
+      }
     );
   };
   const handleNewEntryClick = () =>{
@@ -112,7 +115,8 @@ const Payroll = () => {
     remaining_leaves: 0,
     total_salary: 0,
     deducted_salary: 0,
-    remaining_amount: 0
+    remaining_amount: 0,
+    underBy: adminId
   })
     setSuccess(false);
   }

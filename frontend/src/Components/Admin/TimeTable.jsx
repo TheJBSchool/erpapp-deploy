@@ -4,23 +4,20 @@ import {all_teachers} from '../../controllers/loginRoutes.js';
 import TeacherTimeTable from './TeacherTimeTable.jsx';
 import { getTimetableByClass, saveTimetable } from '../../controllers/loginRoutes.js';
 
-const TimeTable = () => {
+const TimeTable = ({adminId}) => {
   const [msgNote, setMsgNote] = useState('');
   const [success, setSuccess]= useState(false);
   const [teachers, setTeachers] = useState([]);
   const [timeTableType, setTimeTableType] = useState('class_wise');
-  const [classTime, setClassTime] = useState({
-    startTime: '',
-    endTime: ''
-  })
+
   useEffect(() => {
-    all_teachers().then((resp) => {
+    all_teachers(adminId).then((resp) => {
       setTeachers(resp.all_teachers);
-      // console.log("tearcher data ", teachers);
+      // console.log("tearcher data ", resp.all_teachers);
     }).catch((err)=>{
       console.log(err);
     })
-  })
+  },[])
  
 
   const classNames = [
@@ -98,7 +95,7 @@ const TimeTable = () => {
   const fetchTimetable = async () => {
     if (classDropdown) {
       try {
-        const timetableData = await getTimetableByClass(classDropdown); // Fetch timetable data by class
+        const timetableData = await getTimetableByClass(adminId, classDropdown); // Fetch timetable data by class
         if (timetableData.length > 0) {
           setTimetable(timetableData); // Set existing timetable for editing
         } else {
@@ -117,7 +114,7 @@ const TimeTable = () => {
   const saveOrUpdateTimetable = async () => {
     // console.log("Going to save: ",timetable)
     try {
-      await saveTimetable(classDropdown, timetable); // Save or update the timetable for the selected class
+      await saveTimetable(adminId, classDropdown, timetable); // Save or update the timetable for the selected class
       setMsgNote('Time Table set Successfully');
       setSuccess(true);
       setTimeout(() => {
@@ -147,7 +144,7 @@ const TimeTable = () => {
       </div>
 
       {timeTableType=== "teacher_wise" && (
-        <TeacherTimeTable teachers={teachers}/>
+        <TeacherTimeTable adminId={adminId} teachers={teachers}/>
       )}
 
       
@@ -189,7 +186,7 @@ const TimeTable = () => {
             </tr>
           </thead>
           <tbody>
-            {timetable.map((row, rowIndex) => (
+            {timetable.length>0 && timetable.map((row, rowIndex) => (
               <tr key={rowIndex} >
                 <td className="border px-4 py-2 flex ">
                   <input
@@ -220,7 +217,7 @@ const TimeTable = () => {
                                 className="mb-2 w-fit"
                               >
                                 <option value="">Select Teacher</option>
-                                {teachers.map((teacher, index) => (
+                                {teachers && teachers.map((teacher, index) => (
                                   <option key={index} value={teacher.name}>
                                     {teacher.name}
                                   </option>
@@ -238,7 +235,7 @@ const TimeTable = () => {
                                   className="w-fit"
                                 >
                                   <option value="">Select Subject</option>
-                                  {teachers.find((teacher) => teacher.name === cell.teacher).teaching_subject.map((subject, index) => (
+                                  {teachers && teachers.find((teacher) => teacher.name === cell.teacher)?.teaching_subject.map((subject, index) => (
                                       <option key={index} value={subject}>
                                         {subject}
                                       </option>

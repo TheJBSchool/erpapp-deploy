@@ -102,18 +102,20 @@ router.get('/admins', async (req, res) => {
     }
 })
 
-router.get('/teachers', async (req, res) => {
+router.get('/teachers/:id', async (req, res) => {
+  const teacherId = req.params.id;
     try {
-        const all_teachers = await Teacher.find();
+        const all_teachers = await Teacher.find({underBy: teacherId});
         return res.status(201).json({ all_teachers, status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
     }
 })
 
-router.get('/students', async (req, res) => {
+router.get('/students/:id', async (req, res) => {
+  const adminId = req.params.id;
     try {
-        const all_students = await Student.find();
+        const all_students = await Student.find({underBy:adminId});
         return res.status(201).json({ all_students, status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
@@ -208,44 +210,28 @@ router.delete('/adminDelete/:id', async (req, res) => {
     }
 })
 
-router.get('/searchStudents', async (req, res) => {
-    try { 
-        // console.log(req.query);
-        const {group, classes , section} = req.query;
-         const query = {};
-        if (group) {
-        query.group = group;
-        }
-        if (classes) {
-        query.class = classes;
-        }
-        if (section) {
-        query.section = section;
-        }
-        const filtered_students = await Student.find(query);
-        if(!filtered_students){
-            return res.status(404).send('Search request failed');
-        }
-        return res.status(200).json({ filtered_students, status: 200 });
-    } catch (e) {
-        return res.json({ "error": e.message });
+router.get('/searchStudents/:id', async (req, res) => {
+  const adminId = req.params.id;
+  try { 
+      // console.log(req.query);
+    const {group, classes , section} = req.query;
+
+    const filtered_students = await Student.find({underBy:adminId, group, class: classes, section});
+    if(!filtered_students){
+        return res.status(404).send('Search request failed');
     }
+    return res.status(200).json({ filtered_students, status: 200 });
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
 })
-router.get('/searchTeachers', async (req, res) => {
+router.get('/searchTeachers/:id', async (req, res) => {
+  const adminId = req.params.id;
     try { 
-        // console.log(req.query);
+        console.log(req.query);
         const {group, classes , section} = req.query;
-         const query = {};
-        if (group) {
-            query.group = group;
-        }
-        if (classes) {
-            query.class = classes;
-        }
-        if (section) {
-            query.section = section;
-        }
-        const filtered_teachers = await Teacher.find(query);
+        const filtered_teachers = await Teacher.find({underBy:adminId, group:group, class: classes, section:section});
+        console.log("filtered_teacher",filtered_teachers)
         if(!filtered_teachers){
             return res.status(404).send('Search request failed');
         }
@@ -255,52 +241,6 @@ router.get('/searchTeachers', async (req, res) => {
     }
 })
 
-router.get('/studentSearchBar', async (req, res) => {
-  const { userId, name } = req.query;
-
-  try {
-    const students = await Student.find({
-        $or: [
-            { ID: userId },
-            { name: { $regex: name, $options: 'i' } }, // Search by name (case-insensitive)
-        ],
-        });
-
-        return res.status(200).json({ students });
-    } catch (error) {
-        console.error('Error searching students:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-router.get('/teacherSearchBar', async (req, res) => {
-  const { userId, name } = req.query;
-
-  try {
-    const teachers = await Teacher.find({
-        $or: [
-            { ID: userId },
-            { name: { $regex: name, $options: 'i' } }, // Search by name (case-insensitive)
-        ],
-        });
-
-        return res.status(200).json({ teachers });
-    } catch (error) {
-        console.error('Error searching teachers:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// router.post('/manageStudent', async (req, res) => {
-//     try {
-//         const new_student = new Student(req.body);
-//         new_student.password = await bcrypt.hash(new_student.password, 10);
-//         const resp = await new_student.save();
-//         return res.status(201).json({ resp, status: 201 });
-//     } catch (e) {
-//         return res.json({ "error": e.message });
-//     }
-// })
 router.post('/setFeeStudent', async (req, res) => {
     try {
         // console.log(req.body);
@@ -317,19 +257,21 @@ router.get('/getStudent', async (req, res) => {
         let curr_Class = req.query.class;
         let section = req.query.section;
         let session = req.query.session;
+        let adminId = req.query.adminId;
 
-        const data = await Student.find({class: curr_Class, section, session});
+        const data = await Student.find({underBy: adminId, class: curr_Class, section, session});
         return res.status(201).json({ data, status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
     }
 })
 
-router.get('/getFeeDetails', async (req, res) => {
+router.get('/getFeeDetails/:adminId', async (req, res) => {
+  const adminId= req.params.adminId
     try {
         let curr_Class = req.query.class;
         let session = req.query.session;
-        const data = await Fee.find({class: curr_Class, session});
+        const data = await Fee.find({underBy: adminId, class: curr_Class, session});
         return res.status(201).json({ data: data[0], status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
@@ -374,12 +316,12 @@ router.post('/registerStaff', async (req, res) => {
     }
 })
 
-router.post('/timetable/:class', async (req, res) => {
-  const classValue = req.params.class;
+router.post('/timetable/:adminId/:classValue', async (req, res) => {
+  const { classValue, adminId } = req.params;
   const timetableData = req.body;
 
   try {
-    let existingTimetable = await Timetable.findOne({ class: classValue });
+    let existingTimetable = await Timetable.findOne({underBy: adminId, class: classValue });
 
     if (existingTimetable) {
       existingTimetable.table = timetableData;
@@ -388,7 +330,8 @@ router.post('/timetable/:class', async (req, res) => {
     } else {
       const newTimetable = new Timetable({
         class: classValue,
-        table: timetableData
+        table: timetableData,
+        underBy: adminId
       });
       const savedTimetable = await newTimetable.save();
       res.json(savedTimetable);
@@ -398,11 +341,11 @@ router.post('/timetable/:class', async (req, res) => {
   }
 });
 
-router.get('/timetable/:class', async (req, res) => {
-  const classValue = req.params.class;
+router.get('/timetable/:adminId/:classValue', async (req, res) => {
+  const { classValue, adminId } = req.params;
 
   try {
-    const timetable = await Timetable.findOne({ class: classValue });
+    const timetable = await Timetable.findOne({underBy: adminId, class: classValue });
     res.json(timetable ? timetable.table : []);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -410,10 +353,11 @@ router.get('/timetable/:class', async (req, res) => {
 });
 
 //teacher name should be unique
-router.get('/teachertimetable/:teacher', async (req, res) => {
+router.get('/teachertimetable/:adminId/:teacher', async (req, res) => {
   const teacherName = req.params.teacher;
+  const adminId = req.params.adminId;
   try {
-    const timetables = await Timetable.find(); // Retrieve all timetables
+    const timetables = await Timetable.find({underBy:adminId}); // Retrieve all timetables of particular admin
     const teacherTimetables = [];
 
     if (timetables && timetables.length > 0) {

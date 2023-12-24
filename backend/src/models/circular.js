@@ -20,6 +20,10 @@ const circularSchema = new mongoose.Schema({
     date_modified: {
         type: Date,
     },
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
 })
 
 module.exports = mongoose.model("Circular", circularSchema);

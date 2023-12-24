@@ -59,8 +59,8 @@ export const all_admins = async ()=> {
     return ans;
 }
 
-export const all_teachers = async ()=> {
-    const res = await fetch(`${base}/teachers`, {
+export const all_teachers = async (adminId)=> {
+    const res = await fetch(`${base}/teachers/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -70,8 +70,8 @@ export const all_teachers = async ()=> {
     return ans;
 }
 
-export const all_students = async ()=> {
-    const res = await fetch(`${base}/students`, {
+export const all_students = async (adminId)=> {
+    const res = await fetch(`${base}/students/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -159,52 +159,6 @@ export const adminDelete = async (id) => {
     return ans;
 }
 
-export const searchTeachers = async (searchData)=> {
-    const queryString = new URLSearchParams(searchData).toString();
-    const url = `${base}/searchTeachers?${queryString}`;
-    try {
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!res.ok) {
-            throw new Error('Search request failed');
-        }
-        const ans = await res.json();
-        return ans;
-
-    } catch (error) {
-        // Handle fetch or JSON parsing errors here
-        console.error('Error:', error);
-        throw error;
-    }
-};
-
-export const teacherSearchBar = async (searchData) => {
-    const queryString = new URLSearchParams(searchData).toString();
-    const url = `${base}/teacherSearchBar?${queryString}`;
-    try {
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-
-        if (!res.ok) {
-        throw new Error('Failed to delete teacher');
-        }
-        const ans = await res.json();
-        return ans;
-    } catch (error) {
-        console.error('Error searching teachers:', error);
-        throw error;
-    }
-};
 
 export const feeSet = async (obj) =>{
     const res = await fetch(`${base}/setFeeStudent`, {
@@ -222,8 +176,8 @@ export const updateFees = async () =>{
 
 }
 
-export const getStudent = async (obj) => {
-    const res = await fetch(`${base}/getStudent?class=${obj.class}&section=${obj.section}&session=${obj.session}`, {
+export const getStudent = async (obj,adminId) => {
+    const res = await fetch(`${base}/getStudent?class=${obj.class}&section=${obj.section}&session=${obj.session}&adminId=${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -232,8 +186,8 @@ export const getStudent = async (obj) => {
     const ans = await res.json();
     return ans;
 }
-export const getFeeDetails = async(obj) =>{
-    const res = await fetch(`${base}/getFeeDetails?class=${obj.class}&session=${obj.session}`, {
+export const getFeeDetails = async(obj,adminId) =>{
+    const res = await fetch(`${base}/getFeeDetails?class=${obj.class}&session=${obj.session}/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -300,9 +254,9 @@ export const registerStaff = async (obj) =>{
     return ans;
 }
 
-export const getTimetableByClass = async (classValue) => {
+export const getTimetableByClass = async (adminId,classValue) => {
   try {
-    const response = await fetch(`${base}/timetable/${classValue}`, {
+    const response = await fetch(`${base}/timetable/${adminId}/${classValue}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -321,9 +275,9 @@ export const getTimetableByClass = async (classValue) => {
 };
 
 
-export const saveTimetable = async (classValue, timetableData) => {
+export const saveTimetable = async (adminId,classValue, timetableData) => {
   try {
-    const response = await fetch(`${base}/timetable/${classValue}`, {
+    const response = await fetch(`${base}/timetable/${adminId}/${classValue}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -342,9 +296,9 @@ export const saveTimetable = async (classValue, timetableData) => {
   }
 };
 
-export const getTeacherTimeTable = async (teacherName) => {
+export const getTeacherTimeTable = async (adminId, teacherName) => {
   try {
-    const response = await fetch(`${base}/teachertimetable/${teacherName}`, {
+    const response = await fetch(`${base}/teachertimetable/${adminId}/${teacherName}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

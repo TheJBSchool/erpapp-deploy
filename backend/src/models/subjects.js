@@ -11,6 +11,10 @@ const subjectSchema = new mongoose.Schema({
             teacher : String   
         }
     ],
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
 })
 
 module.exports = mongoose.model("Subject", subjectSchema);

@@ -15,7 +15,11 @@ const TimetableSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    table: [[ClassTimetableSchema]] 
+    table: [[ClassTimetableSchema]],
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
 });
 
 const Timetable = mongoose.model('Timetable', TimetableSchema);

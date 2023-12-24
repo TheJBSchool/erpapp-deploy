@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const studentSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -84,6 +83,10 @@ const studentSchema = new mongoose.Schema({
         type: String,
         enum: ["2022-23", "2023-24"]
     },
+    underBy:{
+        type: mongoose.ObjectId,
+        required: true
+    },
     feePayments: [
         {
             quarter: Number,         // 1, 2, 3, or 4
@@ -100,10 +103,16 @@ const lostItemSchema = new mongoose.Schema({
   itemImg: { type: String, required: true },
   itemDesc: { type: String, required: true },
   imageUrl: { type: String },
-  claimBy: [{
-    student: { type: studentSchema },
-    claimMessage: { type: String }
-  }]
+  claimBy: [
+    {
+      student: { type: studentSchema },
+      claimMessage: { type: String },
+    },
+  ],
+  underBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
 });
 
 const LostItem = mongoose.model('LostItem', lostItemSchema);

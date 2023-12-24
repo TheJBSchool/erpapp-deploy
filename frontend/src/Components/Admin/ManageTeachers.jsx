@@ -2,31 +2,45 @@ import React, { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { bgcolor1, bgcolor2 } from "../Home/custom.js";
-import { register_teacher, all_teachers,teacherUpdate, teacherDelete,searchTeachers,teacherSearchBar } from '../../controllers/loginRoutes.js';
+import { register_teacher, all_teachers,teacherUpdate, teacherDelete,teacherSearchBar } from '../../controllers/loginRoutes.js';
 import Multiselect from 'multiselect-react-dropdown';
 import TeacherForm from "./TeacherForm";
 
 const ManageTeachers = ({adminId}) => {
   const [teachers, setTeachers] = useState([]);
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
     group: '',
     class: '',
     section: ''
   });
-  const [searchBars, setSearchBars] = useState({
-    userId: '',
-    name: '',
-  });
-  useEffect(() => {
-    all_teachers().then((resp) => {
+  const [searchName, setSearchName]= useState('')
+  const [searchTeacherId, setSearchTeacherId]= useState('')
+  useEffect(()=>{
+    all_teachers(adminId).then((resp) => {
       setTeachers(resp.all_teachers);
+      setFilteredTeachers(resp.all_teachers);
       // console.log(teachers);
     })
-    teacherSearchBar(searchBars).then((resp) => {
-      setTeachers(resp.teachers);
-    })
-    handleSearch();
-  }, [searchFilter,searchBars])
+  },[])
+
+  useEffect(() => {
+    if(teachers && searchFilter){
+      if(searchFilter.group ===""){
+        setFilteredTeachers(teachers);
+        return;
+      }
+      const clss = searchFilter.class + searchFilter.section;
+      let filteredTeachers = teachers.filter( teacher =>{
+        return (
+          teacher.group=== searchFilter.group && (searchFilter.class==="" || teacher.class_teacher=== clss && teacher.class.includes(clss))
+        )
+      })
+      if(filteredTeachers){
+        setFilteredTeachers(filteredTeachers);
+      }
+    }
+  }, [searchFilter])
   const [formData, setFormData] = useState({
     name: '',
     ID: '',
@@ -190,30 +204,30 @@ const ManageTeachers = ({adminId}) => {
     }
   };
 
-  // filter
-  const handleSearchBar =  (e) => {
-    const { name, value } = e.target;
-    setSearchBars((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  //filter
+
+  const handleSearchByName = (e)=>{
+    let t_name= e.target.value;
+    setSearchName(t_name);
+    t_name = t_name.toLowerCase()
+    let filteredStudents = teachers.filter((item) => item.name.toLowerCase().includes(t_name))
+    setFilteredTeachers(filteredStudents);
   }
 
-  // use it when search with button
-  // const clearSearch = () => { 
-  //   setSearchFilter({
-  //   group: '',
-  //   class: '',
-  //   section: ''
-  // });
-  // };
+  const handleSearchByTeacherId = (e)=>{
+    let t_id= e.target.value;
+    setSearchTeacherId(t_id)
+    let filteredStudents = teachers.filter((item) => item.ID.toLowerCase().includes(t_id))
+    setFilteredTeachers(filteredStudents);
+  }
+
   const getClassOptionsSearch = () => {
     if (searchFilter?.group === 'Pre') {
       return ['Pre Nursery','Nursery', 'LKG', 'UKG'];
     } else if (searchFilter?.group === 'Primary') {
-      return ['1st', '2nd', '3rd', '4th', '5th'];
+      return ['1', '2', '3', '4', '5'];
     } else if (searchFilter?.group === 'Secondary') {
-      return ['6th', '7th', '8th', '9th', '10th'];
+      return ['6', '7', '8', '9', '10'];
     }
     return [];
   };
@@ -225,13 +239,6 @@ const ManageTeachers = ({adminId}) => {
     }));
     // console.log(searchFilter);
   };
-  const handleSearch = () => {
-    searchTeachers(searchFilter).then( (resp) => {
-        setTeachers(resp.filtered_teachers);
-      }).catch(error => {
-          console.error("Error calling useEffect student: ", error);
-      });
-  }
   return (
     <>
     <div style={bgcolor2} className="border-2  border-red-300 rounded-lg p-10 ">
@@ -295,21 +302,21 @@ const ManageTeachers = ({adminId}) => {
                 <div className="relative">
                   <input
                     type="text"
-                    name='userId'
+                    name='name'
                     className="w-32 px-2 py-1 border rounded mr-4 text-sm"
-                    placeholder="&#128269; Enter User ID"
-                    value={searchBars.id}
-                    onChange={handleSearchBar}
+                    placeholder="&#128269; Enter Name"
+                    value={searchName}
+                    onChange={handleSearchByName}
                   />
                 </div>
                 <div className="relative">
                   <input
                     type="text"
-                    name='name'
+                    name='userId'
                     className="w-32 px-2 py-1 border rounded mr-4 text-sm"
-                    placeholder="&#128269; Enter Name"
-                    value={searchBars.name}
-                    onChange={handleSearchBar}
+                    placeholder="&#128269; Enter User ID"
+                    value={searchTeacherId}
+                    onChange={handleSearchByTeacherId}
                   />
                 </div>
                 {/* dropdown filters */}
@@ -435,7 +442,7 @@ const ManageTeachers = ({adminId}) => {
                 </tr>
               </thead>
                 <tbody>
-                  {teachers.map((val, ind) => (
+                  {filteredTeachers.map((val, ind) => (
                     <tr key={val._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                       <td  className='px-1 py-2 font-medium text-gray-900 border text-center whitespace-nowrap dark:text-white'>{ind+1}</td>
                       <td  className='px-1 py-2 font-medium text-gray-900 border text-center whitespace-nowrap dark:text-white'>{val.name}</td>

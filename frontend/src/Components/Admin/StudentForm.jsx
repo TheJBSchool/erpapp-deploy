@@ -13,7 +13,6 @@ const StudentForm = ({ formData, handleFormChange, formSubmit}) => {
     return [];
   };
 
-    console.log(formData)
   return (
     <>
       {/* Rest of your form JSX */}

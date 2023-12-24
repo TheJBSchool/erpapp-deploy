@@ -72,7 +72,11 @@ const staffSchema = new mongoose.Schema({
     remaining_amount: {
         type: Number,
         required: true,
-    }
+    },
+    underBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
 });
 
 module.exports = mongoose.model("Staff", staffSchema);

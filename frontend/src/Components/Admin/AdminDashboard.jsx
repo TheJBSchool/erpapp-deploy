@@ -115,17 +115,17 @@ const AdminDashboard = () => {
 
           {/* Make them router */}
           {selectedItem === "myProfile" && <MyProfile adminData={adminData}/>    }
-          {selectedItem === "attendace" && <Attendance />}
-          {selectedItem === "fees" && <Fees />}
-          {selectedItem === "payroll" && <Payroll />}
-          {selectedItem === "syllabus" && <Syllabus />}
-          {selectedItem === "timeTable" && <TimeTable />}
-          {selectedItem === "circular" && <Circular />}
-          {selectedItem === "exam" && <Exam />}
-          {selectedItem === "inventoryManagement" && <InventoryManagement />}
+          {selectedItem === "attendace" && <Attendance adminId={adminData._id} />}
+          {selectedItem === "fees" && <Fees adminId={adminData._id} />}
+          {selectedItem === "payroll" && <Payroll adminId={adminData._id} />}
+          {selectedItem === "syllabus" && <Syllabus adminId={adminData._id} />}
+          {selectedItem === "timeTable" && <TimeTable adminId={adminData._id} />}
+          {selectedItem === "circular" && <Circular adminId={adminData._id} />}
+          {selectedItem === "exam" && <Exam adminId={adminData._id} />}
+          {selectedItem === "inventoryManagement" && <InventoryManagement adminId={adminData._id} />}
           {selectedItem === "manageStudents" && <ManageStudents adminId={adminData._id} />}
           {selectedItem === "manageTeachers" && <ManageTeachers adminId={adminData._id} />}
-          {selectedItem === "lostFound" && <LostAndFound />}
+          {selectedItem === "lostFound" && <LostAndFound adminId={adminData._id}/>}
           {selectedItem === "communication" && <Communication adminData={adminData} />}
           {selectedItem === "requestvalidation" && <RequestValidation adminId={adminData._id}/>}
 
