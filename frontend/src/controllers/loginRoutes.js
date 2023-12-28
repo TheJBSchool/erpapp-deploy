@@ -336,9 +336,9 @@ export const saveUploads_lostAndFound = async (formData) => {
       }
 }
 
-export const fetchRecentItems = async () => {
+export const fetchRecentItems = async ({adminId}) => {
     try {
-        const response = await fetch(`${base}/recentLostItem`, {
+        const response = await fetch(`${base}/recentLostItem/${adminId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -355,9 +355,9 @@ export const fetchRecentItems = async () => {
     }
 };
 
-export const student_claim_req = async (Reqdata) => {
+export const student_claim_req = async (adminId, Reqdata) => {
     try {
-        const response = await fetch(`${base}/claimitem`, {
+        const response = await fetch(`${base}/claimitem/${adminId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -397,8 +397,8 @@ export const createNewCircular = async(CircularData) =>{
     }
 }
 
-export const all_circulars = async ()=> {
-    const res = await fetch(`${base}/allcirculars`, {
+export const all_circulars = async (adminId)=> {
+    const res = await fetch(`${base}/allcirculars/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -430,8 +430,8 @@ export const deleteCircular = async (id) => {
     return ans;
 }
 
-export const stu_circular = async (classes)=> {
-    const res = await fetch(`${base}/stucircular/${classes}`, {
+export const stu_circular = async (adminId, classes)=> {
+    const res = await fetch(`${base}/stucircular/${adminId}/${classes}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -556,8 +556,8 @@ export const schoolNameLogo = async (id)=> {
     return ans;
 }
 
-export const all_teachers_names = async ()=> {
-    const res = await fetch(`${base}/teachernames`, {
+export const all_teachers_names = async (adminId)=> {
+    const res = await fetch(`${base}/teachernames/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -567,8 +567,8 @@ export const all_teachers_names = async ()=> {
     return ans;
 }
 
-export const all_students_names = async ()=> {
-    const res = await fetch(`${base}/studentnames`, {
+export const all_students_names = async (adminId)=> {
+    const res = await fetch(`${base}/studentnames/${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -602,8 +602,8 @@ export const save_examTypes = async(obj) => {
     return ans;
 }
 
-export const get_subjects = async (clss)=> {
-    const res = await fetch(`${base}/getsubjects/${clss}`, {
+export const get_subjects = async (adminId,clss)=> {
+    const res = await fetch(`${base}/getsubjects/${adminId}/${clss}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -613,8 +613,8 @@ export const get_subjects = async (clss)=> {
     return ans;
 }
 
-export const get_examTypes = async (clss)=> {
-    const res = await fetch(`${base}/getexamtype/${clss}`, {
+export const get_examTypes = async (adminId,clss)=> {
+    const res = await fetch(`${base}/getexamtype/${adminId}/${clss}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -624,8 +624,8 @@ export const get_examTypes = async (clss)=> {
     return ans;
 }
 
-export const get_studentsName = async (clss)=> {
-    const res = await fetch(`${base}/getstudentsname/${clss}`, {
+export const get_studentsName = async (adminId, clss)=> {
+    const res = await fetch(`${base}/getstudentsname/${adminId}/${clss}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -647,8 +647,8 @@ export const save_result = async(obj) => {
     return ans;
 }
 
-export const get_result= async (obj)=> {
-    const res = await fetch(`${base}/getresult`, {
+export const get_result= async (adminId, obj)=> {
+    const res = await fetch(`${base}/getresult/${adminId}`, {
         method: 'POST',
         body: JSON.stringify(obj),
         headers: {

@@ -413,9 +413,10 @@ router.post('/lostFound', upload.single('itemImg'), async (req, res) => {
   }
 });
 
-router.get('/recentLostItem', async (req, res) => {
+router.get('/recentLostItem/:adminId', async (req, res) => {
+  const adminId = req.params.adminId;
   try {
-    const recentItems = await LostItem.find().sort({ _id: -1 }); // Adjust the limit as needed
+    const recentItems = await LostItem.find({underBy: adminId}).sort({ _id: -1 }); // Adjust the limit as needed
     res.status(201).json(recentItems);
 
   } catch (error) {
@@ -424,12 +425,13 @@ router.get('/recentLostItem', async (req, res) => {
   }
 });
 
-router.post('/claimitem', async (req, res) => {
+router.post('/claimitem/:adminId', async (req, res) => {
+  const adminId = req.params.adminId;
   try {
     const { itemId, claimBy } = req.body;
 
     // Find the lost item by ID
-    const lostItem = await LostItem.findById(itemId);
+    const lostItem = await LostItem.find({underBy: adminId, _id:itemId});
 
     if (!lostItem) {
       return res.status(404).json({ message: 'Lost item not found' });
@@ -457,7 +459,7 @@ router.post('/claimitem', async (req, res) => {
 
 router.post('/createcircular', async(req,res) =>{
     try {
-        console.log("backend",req.body);
+        // console.log("backend",req.body);
         const new_circular = new Circular(req.body);
         const resp = await new_circular.save();
         return res.status(201).json({resp, status: 201});
@@ -466,9 +468,10 @@ router.post('/createcircular', async(req,res) =>{
     }
 })
 
-router.get('/allcirculars', async (req, res) => {
+router.get('/allcirculars/:adminId', async (req, res) => {
+  const adminId = req.params.adminId;
     try {
-        const circulars = await Circular.find();
+        const circulars = await Circular.find({underBy:adminId});
         return res.status(201).json({ circulars, status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
@@ -517,11 +520,12 @@ function classCategory(Student_class) {
     } 
 }
 
-router.get('/stucircular/:classes', async (req, res) => {
+router.get('/stucircular/:adminId/:classes', async (req, res) => {
     try {
         const stu_class = req.params.classes;
+        const adminId = req.params.adminId;
         let category = classCategory(stu_class);
-        const circulars = await Circular.find({ $or: [{target: stu_class}, {target:category}, {target:'All'}]});
+        const circulars = await Circular.find({underBy: adminId, $or: [{target: stu_class}, {target:category}, {target:'All'}]});
         return res.status(201).json(circulars);
     } catch (e) {
         return res.json({ "error": e.message });
@@ -661,18 +665,20 @@ router.get('/settings/:id',async (req, res) => {
 });
 
 // teacher names for Result in Teacher portal
-router.get('/teachernames', async (req, res) => { 
+router.get('/teachernames/:adminId', async (req, res) => { 
+    const adminId = req.params.adminId;
     try {
-        const allTeachers = await Teacher.find().select('name _id'); // Filtering only 'name' and 'id' fields
+        const allTeachers = await Teacher.find({underBy:adminId}).select('name _id'); // Filtering only 'name' and 'id' fields
         return res.status(201).json(allTeachers);
     } catch (e) {
         return res.status(409).json({ error: e.message });
     }
 });
 
-router.get('/studentnames', async (req, res) => { 
+router.get('/studentnames/:adminId', async (req, res) => { 
+    const adminId = req.params.adminId;
     try {
-        const allStudent = await Student.find().select('name _id'); // Filtering only 'name' and 'id' fields
+        const allStudent = await Student.find({underBy:adminId}).select('name _id'); // Filtering only 'name' and 'id' fields
         return res.status(201).json(allStudent);
     } catch (e) {
         return res.status(409).json({ error: e.message });
@@ -682,7 +688,7 @@ router.get('/studentnames', async (req, res) => {
 
 router.post('/savesubjects', async (req, res) => {
     try {
-        const resp = await Subject.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
+        const resp = await Subject.findOneAndUpdate({underBy: req.body.underBy,class: req.body.class},req.body,{ upsert: true});
         if (resp.nModified === 0) {
           return res.status(409).json({ message: "Failed to update" });
         }
@@ -694,35 +700,38 @@ router.post('/savesubjects', async (req, res) => {
 
 router.post('/saveexamtype', async (req, res) => {
     try {
-        const resp = await ExamType.findOneAndUpdate({class: req.body.class},req.body,{ upsert: true});
+        const resp = await ExamType.findOneAndUpdate({underBy: req.body.underBy, class: req.body.class},req.body,{ upsert: true});
         return res.status(201).json({ resp, status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });
     }
 })
 
-router.get('/getsubjects/:class', async (req, res) => { 
+router.get('/getsubjects/:adminId/:class', async (req, res) => { 
   const clss = req.params.class;
+  const adminId = req.params.adminId;
   try {
-    const data = await Subject.find({class:clss});
+    const data = await Subject.find({underBy: adminId, class:clss});
     return res.status(201).json(data);
   } catch (e) {
     return res.status(409).json({ error: e.message });
   }
 });
 
-router.get('/getexamtype/:class', async (req, res) => { 
+router.get('/getexamtype/:adminId/:class', async (req, res) => { 
   const clss = req.params.class;
+  const adminId = req.params.adminId;
   try {
-    const data = await ExamType.find({class:clss}); 
+    const data = await ExamType.find({underBy:adminId, class:clss}); 
     return res.status(201).json(data);
   } catch (e) {
     return res.status(409).json({ error: e.message });
   }
 });
 
-router.get('/getstudentsname/:class', async (req, res) => { 
+router.get('/getstudentsname/:adminId/:class', async (req, res) => { 
   const clss = req.params.class;
+  const adminId = req.params.adminId;
 
   const regex = /([0-9]+)([A-Za-z]+)/;
   const matches = clss.match(regex);
@@ -731,7 +740,7 @@ router.get('/getstudentsname/:class', async (req, res) => {
     const classNumber = matches[1];
     const section = matches[2];
     try {
-      const data = await Student.find({class:classNumber, section:section}).select('name _id'); 
+      const data = await Student.find({underBy: adminId, class:classNumber, section:section}).select('name _id'); 
       return res.status(201).json(data);
     } catch (e) {
       return res.status(409).json({ error: e.message });
@@ -742,16 +751,17 @@ router.get('/getstudentsname/:class', async (req, res) => {
 
 router.post('/saveresult', async (req, res) => {
   try {
-      const resp = await Result.findOneAndUpdate({class: req.body.class,session: req.body.session,examType: req.body.examType},req.body,{ upsert: true,new: true});
+      const resp = await Result.findOneAndUpdate({underBy: req.body.underBy, class: req.body.class,session: req.body.session,examType: req.body.examType},req.body,{ upsert: true,new: true});
       return res.status(201).json({ resp, status: 201 });
   } catch (e) {
       return res.status(409).json({ "error": e.message });
   }
 })
 
-router.post('/getresult', async (req, res) => {
+router.post('/getresult/:adminId', async (req, res) => {
+  const adminId = req.params.adminId;
   try {
-      const resp = await Result.find({class: req.body.class, session: req.body.session, examType: req.body.examType}).sort({ date_created: 1 });
+      const resp = await Result.find({underBy:adminId, class: req.body.class, session: req.body.session, examType: req.body.examType}).sort({ date_created: 1 });
       if (!resp) {
         return res.status(409).json({ message: "Failed to find" });
       }

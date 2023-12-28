@@ -8,7 +8,7 @@ import ReactQuill from 'react-quill'
 
 
 
-const Circular = () => {
+const Circular = ({adminId}) => {
   const initialNewCircular = {
     target: [],
     title: '',
@@ -29,7 +29,7 @@ const Circular = () => {
   ];
 
   useEffect(()=>{
-    all_circulars().then((resp) => {
+    all_circulars(adminId).then((resp) => {
       setAllCirculars(resp.circulars);
     })
   },[createCircularBtn])

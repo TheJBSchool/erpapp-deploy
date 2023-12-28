@@ -33,7 +33,7 @@ const Result = ({teacherData}) => {
   const { isLoading, toggleLoading } = useContext(LoadingContext);
 
   useEffect(()=>{
-    all_teachers_names().then((resp)=>{
+    all_teachers_names(teacherData.underBy).then((resp)=>{
         // console.log("teacher name resp",resp)
         setTeacherNames(resp);
     })
@@ -127,7 +127,8 @@ const Result = ({teacherData}) => {
   const subjectSubmit = ()=>{
     const obj = {
         class : teacherData.class_teacher, 
-        subjects : subjectRows
+        subjects : subjectRows,
+        underBy: teacherData.underBy
     }
     // console.log("subject Submit", obj)
     toggleLoading(true);
@@ -148,7 +149,8 @@ const Result = ({teacherData}) => {
   const examTypeSubmit = ()=>{
     const obj = {
         class : teacherData.class_teacher,
-        exams : examRows
+        exams : examRows,
+        underBy: teacherData.underBy
     }
     // console.log("Exam Submit", obj)
     toggleLoading(true);

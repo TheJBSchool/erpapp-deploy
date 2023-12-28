@@ -20,7 +20,7 @@ const ResquestValidation = ({adminId}) => {
       setResultRequests(resp);
     })
 
-    all_students_names().then((resp) => {
+    all_students_names(adminId).then((resp) => {
       setStudentsData(resp);
     }).catch((error) => {
       console.error('Error fetching students:', error);

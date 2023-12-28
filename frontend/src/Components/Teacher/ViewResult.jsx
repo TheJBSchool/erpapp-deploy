@@ -45,7 +45,7 @@ const ViewResult = ({studentNames, subjectRows, examRows, teacherData}) => {
             session: session,
             examType:examTypeSelect
         }
-        get_result(obj).then((resp)=>{
+        get_result(teacherData.underBy, obj).then((resp)=>{
             if(resp.length>0){
                 setMarks(resp[0].studentsMarks)
             }
