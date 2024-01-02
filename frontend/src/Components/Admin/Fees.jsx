@@ -24,17 +24,16 @@ const Fees = ({adminId}) => {
   ]);
   // console.log(quarterDeadlines);
   const [searchStuDropdown, setSearchStuDropdown]= useState(false);
-  const [stuSelected, setStuSelected]= useState({
-    session: '',
-    class: ''
-  });
+  const [stuSelected, setStuSelected]= useState();
+  const [students, setStudents] = useState([]);
+  const [filterStu,setFilterStu]= useState([]);
+
   const [fullName,setFullName] = useState('');
   const [rollno, setRollno]= useState('');
   const [fatherName, setFatherName]= useState('');
   const [payBtn, setPayBtn] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
   const [filteredData, setFilteredData] = useState([]);
-  const [filterStu,setFilterStu]= useState([]);
   const [currFee, setCurrFee] = useState();
   const [formData, setFormData] = useState({
     session:'',
@@ -56,11 +55,18 @@ const Fees = ({adminId}) => {
     const formattedDate = new Date().toLocaleDateString();
     setCurrentDate(formattedDate);
   },[]);
+
   useEffect(()=>{
-    getStudent({session: formData.session, section: formData.section, class: formData.studentClass},adminId).then((resp)=>{
-      setFilteredData(resp.data);
-    })
-  });
+    if(formData){
+      getStudent({session: formData.session, section: formData.section, class: formData.studentClass},adminId).then((resp)=>{
+        setStudents(resp.data);
+        console.log("students fee",resp.data)
+      });
+
+    }
+
+  },[formData])
+
   const receiptRef = useRef();
   const [showReceipt, setShowReceipt] = useState(false);
   const initialData = [
@@ -229,6 +235,7 @@ const Fees = ({adminId}) => {
         setShowFeeConfirmation(true);
   }
   const handleCloseDialog = () => {
+    
     setShowFeeConfirmation(false);
   };
 
@@ -293,14 +300,12 @@ const Fees = ({adminId}) => {
   const searchReceipt = () => {
     if (formData.session && formData.section && formData.studentClass && fullName) {
       getFeeDetails({ session: stuSelected.session, class: stuSelected.class },adminId).then((resp) => {
+        console.log("getFeeDetails",resp);
         setCurrFee(resp.data);
         setDeadlines(resp.data.date1);
         setPayBtn(true);
       })
-    } else {
-      console.log("First Enter required details");
-      return;
-    }
+    } 
 
     let feeArray = stuSelected.feePayments;
     let updatedQuarterIcons = [false, false, false, false, false];
@@ -408,30 +413,19 @@ const Fees = ({adminId}) => {
   };
 
   const clickHandle = (e)=>{
-    // console.log(e);
     setStuSelected(e);
-    // console.log(stuSelected);
     setFullName(e.name);
-    setFatherName(e.father_name);
-    setRollno(e.rollno);
     setSearchStuDropdown(false);
-
   }
 
   
   const handleFullNameChange = (e)=>{
-    setFullName(e.target.value);
+    const name= e.target.value;
+    setFullName(name);
     setSearchStuDropdown(true);
 
-    // filter student based on inital full name
-    let arr=[];
-    setFilterStu(arr);
-    filteredData.map((val)=>{
-      if(val.name.toLowerCase().includes(fullName.toLowerCase())){
-        arr.push(val);
-      }
-    })
-    setFilterStu(arr);
+    let filteredStudents = students.filter((item) => item.name.toLowerCase().includes(name));
+    setFilterStu(filteredStudents);
   }
 
   const quarterSelectHandle = (e,index)=>{
@@ -682,7 +676,7 @@ const Fees = ({adminId}) => {
                     <input
                       type="text"
                       name="rollno"
-                      value={rollno}
+                      value={stuSelected?.rollno}
                       readOnly
                       // onChange={handleInputChange}
                       // required
@@ -699,7 +693,7 @@ const Fees = ({adminId}) => {
                       readOnly
                       type="text"
                       name="fatherName"
-                      value={fatherName}
+                      value={stuSelected?.father_name}
                       // onChange={handleInputChange}
                       // required
                       className="w-full px-4 py-2 border rounded-lg bg-slate-100 focus:outline-none"

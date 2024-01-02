@@ -266,12 +266,12 @@ router.get('/getStudent', async (req, res) => {
     }
 })
 
-router.get('/getFeeDetails/:adminId', async (req, res) => {
-  const adminId= req.params.adminId
+router.get('/getFeeDetails', async (req, res) => {
     try {
         let curr_Class = req.query.class;
         let session = req.query.session;
-        const data = await Fee.find({underBy: adminId, class: curr_Class, session});
+        let adminId = req.query.adminId;
+        const data = await Fee.find({underBy: adminId, class: curr_Class, session:session});
         return res.status(201).json({ data: data[0], status: 201 });
     } catch (e) {
         return res.json({ "error": e.message });

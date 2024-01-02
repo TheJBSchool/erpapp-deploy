@@ -187,7 +187,7 @@ export const getStudent = async (obj,adminId) => {
     return ans;
 }
 export const getFeeDetails = async(obj,adminId) =>{
-    const res = await fetch(`${base}/getFeeDetails?class=${obj.class}&session=${obj.session}/${adminId}`, {
+    const res = await fetch(`${base}/getFeeDetails?class=${obj.class}&session=${obj.session}&adminId=${adminId}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
