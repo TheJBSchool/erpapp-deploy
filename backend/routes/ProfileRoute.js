@@ -241,16 +241,132 @@ router.get('/searchTeachers/:id', async (req, res) => {
     }
 })
 
-router.post('/setFeeStudent', async (req, res) => {
-    try {
-        // console.log(req.body);
-        const new_fee_data = new Fee(req.body);
-        const resp = await new_fee_data.save();
-        return res.status(201).json({resp, status: 201});
-    } catch (e) {
-        return res.json({ "error": e.message });
+const getStartingQuarter = (admissionDate)=>{
+  const date = new Date(admissionDate);
+
+    const month = date.getMonth(); // 0 for January, 1 for February, ..., 11 for December
+
+    // Define quarters based on months
+    if (month >= 0 && month <= 2) {
+        // Quater4: January, February, March
+        return 'Quater4';
+    } else if (month >= 3 && month <= 5) {
+        // Quater1: April, May, June
+        return 'Quater1';
+    } else if (month >= 6 && month <= 8) {
+        // Quater2: July, August, September
+        return 'Quater2';
+    } else {
+        // Quater3: October, November, December
+        return 'Quater3';
     }
-})
+}
+router.post('/setFeeStudent/:adminId', async (req, res) => {
+    const adminId = req.params.adminId;
+    try {
+        const resp = await Fee.findOneAndUpdate(
+            { underBy: adminId, session: req.body.session, class: req.body.class },
+            req.body,
+            { upsert: true, new: true }
+        );
+
+        console.log("class", req.body.class);
+        const students = await Student.find({ underBy: adminId, session: req.body.session, class: req.body.class });
+        console.log("all students", students);
+
+        for (const student of students) {
+            const quarterToUpdate = getStartingQuarter(student.admission_date);
+
+            if (!student.feePayments) {
+                student.feePayments = {}; // Initialize if absent
+            }
+
+            // Ensure the feePayments object for the determined quarter exists or initialize it
+            if (!student.feePayments[quarterToUpdate]) {
+                student.feePayments[quarterToUpdate] = {}; // Initialize if absent for the specific quarter
+            }
+
+            student.feePayments[quarterToUpdate].adm_fee = req.body.adm_fee.toString();
+
+            const academicFeePerQuarter = parseFloat(req.body.academic_fee) / 4;
+
+            // Update acdm_fee for all quarters
+            for (const quarter in student.feePayments) {
+                if (Object.hasOwnProperty.call(student.feePayments, quarter)) {
+                    student.feePayments[quarter].acdm_fee = academicFeePerQuarter.toString();
+                    student.feePayments[quarter].pending_fee = 0;
+                    student.feePayments[quarter].late_fee = 0;
+                    student.feePayments[quarter].fee_applied = false;
+                    console.log("fee_applied:false");
+                }
+            }
+
+            const quarters = Object.keys(student.feePayments);
+            const indexToUpdate = quarters.indexOf(quarterToUpdate);
+            // Check if the quarter to update exists and update fee_applied for subsequent quarters
+            if (indexToUpdate !== -1) {
+                quarters.slice(indexToUpdate).forEach((quarter) => {
+                    if (!student.feePayments[quarter]) {
+                        student.feePayments[quarter] = {}; // Initialize if absent for the specific quarter
+                    }
+                    student.feePayments[quarter].fee_applied = true;
+                     console.log("fee_applied:true");
+                });
+            }
+
+            try {
+                await student.save();
+            } catch (saveErr) {
+                console.error(`Error saving student ${student._id}: ${saveErr}`);
+            }
+        }
+
+        return res.status(201).json({ resp, status: 201 });
+    } catch (e) {
+        return res.json({ error: e.message });
+    }
+});
+
+
+router.post('/UpdateStuFee/:sid/:quater', async (req, res) => {
+  try {
+    const { sid, quater } = req.params;
+    const QuaterData = req.body;
+
+    // Find the student by ID
+    const student = await Student.findById(sid);
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Check if the provided quarter exists in the student's feePayments
+    if (!student.feePayments || !student.feePayments[quater]) {
+      return res.status(404).json({ message: 'Quarter data not found for the student' });
+    }
+
+    // Update the quarter data
+    const quarterToUpdate = student.feePayments[quater];
+    for (const key in QuaterData) {
+      if (Object.hasOwnProperty.call(QuaterData, key)) {
+        if (quarterToUpdate.hasOwnProperty(key)) {
+          quarterToUpdate[key] = QuaterData[key];
+        }
+      }
+    }
+
+    await student.save();
+
+    // Fetch the updated student with the updated quarter data
+    const updatedStudent = await Student.findById(sid);
+
+    res.status(200).json({ message: `${quater} payment done successfully`, student: updatedStudent });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 
 router.get('/getStudent', async (req, res) => {
     try {
@@ -272,7 +388,7 @@ router.get('/getFeeDetails', async (req, res) => {
         let session = req.query.session;
         let adminId = req.query.adminId;
         const data = await Fee.find({underBy: adminId, class: curr_Class, session:session});
-        return res.status(201).json({ data: data[0], status: 201 });
+        return res.status(201).json(data);
     } catch (e) {
         return res.json({ "error": e.message });
     }
@@ -315,6 +431,19 @@ router.post('/registerStaff', async (req, res) => {
         return res.json({ "error": e.message });
     }
 })
+
+router.get('/getStaff/:adminId', async (req, res) => {
+
+  const adminId = req.params.adminId;
+
+  try {
+    const totalStaff = await Staff.find({underBy: adminId});
+    res.status(200).json(totalStaff);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+})
+
 
 router.post('/timetable/:adminId/:classValue', async (req, res) => {
   const { classValue, adminId } = req.params;

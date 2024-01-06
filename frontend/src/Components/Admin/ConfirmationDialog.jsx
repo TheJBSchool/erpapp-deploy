@@ -19,8 +19,8 @@ function ConfirmationDialog({ handleConfirm, open, onClose }) {
   };
 
   return (
-    <div style={{ display: open ? 'block' : 'none' }}>
-      <div className="dialog-container">
+    <div className='fixed inset-0 flex items-center justify-center z-5 backdrop-blur-sm'>
+      <div className="dialog-container bg-white">
         <div className="dialog-header bg-slate-200">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <svg

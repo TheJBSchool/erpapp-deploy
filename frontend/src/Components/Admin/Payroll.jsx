@@ -1,10 +1,10 @@
-import React, { useState, useContext} from 'react';
+import React, { useEffect, useState, useContext} from 'react';
 import { bgcolor2 } from "../Home/custom.js";
 import StaffForm from './StaffForm.jsx';
 import Alert from '@mui/material/Alert';
 import { LoadingContext } from '../../App.js';
 import DigitalBahi from './DigitalBahi.jsx';
-import {registerStaff} from '../../controllers/loginRoutes.js';
+import {registerStaff, getStaff} from '../../controllers/loginRoutes.js';
 
 const Payroll = ({adminId}) => {
   const [exitStaffData, setExistStaffData] = useState([]); // existing staff-> table data store in it
@@ -20,18 +20,10 @@ const Payroll = ({adminId}) => {
     jobPosition: '',
     aadharNo: '',
     joining_date: '',
-    total_working_days: 0,
-    present: 0,
-    absent: 0,
-    half_days: 0,
-    paid_leaves: 0,
-    available_leaves: 0,
-    remaining_leaves: 0,
-    total_salary: null,
-    deducted_salary: 0,
-    remaining_amount: 0,
     underBy: adminId
   })
+
+  const [prData, setPrData]=useState([]);
   // console.log(payrollData);
   const [payrollDropdown, setPayrollDropdown] = useState({
     staffpayroll: '',
@@ -40,6 +32,62 @@ const Payroll = ({adminId}) => {
   });
 
   const [digtalBahiIndex, setDigitalBahiIndex] = useState();
+
+  useEffect(() => {
+    if (payrollDropdown.session && payrollDropdown.month && exitStaffData.length > 0) {
+      const updatedPrData = [];
+      exitStaffData.forEach((staff) => {
+        const sessionFound = staff.sessions.find(
+          (session) => session.session_name === payrollDropdown.session
+        );
+
+        if (sessionFound && sessionFound.months[payrollDropdown.month]) {
+          const selectedMonth = sessionFound.months[payrollDropdown.month];
+
+          // Update prData state based on the selected month's data
+          const staffData= {
+            total_working_days: selectedMonth.total_working_days,
+            present: selectedMonth.present,
+            absent: selectedMonth.absent,
+            half_days: selectedMonth.half_days,
+            paid_leaves: selectedMonth.paid_leaves,
+            available_leaves: selectedMonth.available_leaves,
+            remaining_leaves: selectedMonth.remaining_leaves,
+            total_salary: selectedMonth.total_salary,
+            deducted_salary: selectedMonth.deducted_salary,
+            remaining_amount: selectedMonth.remaining_amount,
+          };
+          updatedPrData.push(staffData);
+        } 
+        else{
+          const staffData = {
+            total_working_days: 0,
+            present: 0,
+            absent: 0,
+            half_days: 0,
+            paid_leaves: 0,
+            available_leaves: 0,
+            remaining_leaves: 0,
+            total_salary: staff.total_salary,
+            deducted_salary: 0,
+            remaining_amount: 0,
+          };
+          updatedPrData.push(staffData);
+        }
+      });
+      setPrData(updatedPrData);
+    }
+  }, [payrollDropdown.session, payrollDropdown.month, exitStaffData]);
+
+  useEffect(() => {
+    getStaff(adminId).then((resp)=>{
+      console.log("staffs",resp);
+      setExistStaffData(resp);
+    })
+  }, []);
+
+  console.log("prData",prData);
+
 
   const months = ['January', 'February', 'March', 'April', 'June', 'July', 'Augest', 'September', 'October', 'November', 'December'];
   const handleFormChange = (e) => {
@@ -82,16 +130,6 @@ const Payroll = ({adminId}) => {
       jobPosition: '',
       aadharNo: '',
       joining_date: '',
-      total_working_days: 0,
-      present: 0,
-      absent: 0,
-      half_days: 0,
-      paid_leaves: 0,
-      available_leaves: 0,
-      remaining_leaves: 0,
-      total_salary: null,
-      deducted_salary: 0,
-      remaining_amount: 0,
       underBy: adminId
       }
     );
@@ -106,16 +144,6 @@ const Payroll = ({adminId}) => {
     jobPosition: '',
     aadharNo: '',
     joining_date: '',
-    total_working_days: 0,
-    present: 0,
-    absent: 0,
-    half_days: 0,
-    paid_leaves: 0,
-    available_leaves: 0,
-    remaining_leaves: 0,
-    total_salary: 0,
-    deducted_salary: 0,
-    remaining_amount: 0,
     underBy: adminId
   })
     setSuccess(false);
@@ -129,60 +157,46 @@ const Payroll = ({adminId}) => {
   }
 
   // exist staff table
-  const tableDataChangeHandle = (e, index) => {
+ const tableDataChangeHandle = (e, index) => {
     const { name, value } = e.target;
-
-    // Create a copy of the exitStaffData array
     const updatedExitStaffData = [...exitStaffData];
 
-    // Update the specific property of the staff member at the given index
-    if (name === "remaining_leaves") {
-      updatedExitStaffData[index] = {
-        ...updatedExitStaffData[index],
-        [name]: parseFloat(value),
-      };
-    } else if (name === "paid_leaves" ) {
-      let prevAvailableLeaves = updatedExitStaffData[index]['available_leaves'];
-      let prevPaidLeaves = updatedExitStaffData[index]['paid_leaves'];
-      let newPaidLeaves =parseInt(value, 10);
-      let newAvailableLeaves = prevAvailableLeaves + (newPaidLeaves - prevPaidLeaves)
-
-      updatedExitStaffData[index] = {
-        ...updatedExitStaffData[index],
-        [name]: newPaidLeaves,
-        ['available_leaves']: newAvailableLeaves
-      };
-        
-    } else {
-      updatedExitStaffData[index] = {
-        ...updatedExitStaffData[index],
-        [name]: name === "fullName" ? value : parseInt(value, 10),
-      };
-    }
+    updatedExitStaffData[index] = {
+      ...updatedExitStaffData[index],
+      [payrollDropdown.session]: {
+        ...updatedExitStaffData[index][payrollDropdown.session],
+        [payrollDropdown.month]: {
+          ...updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month],
+          [name]: name === 'fullName' ? value : parseFloat(value) || 0,
+        },
+      },
+    };
     
 
     // Validate salary when there's a change in any cell
-    validateChangedRow(index, updatedExitStaffData);
-
-    // Update the exitStaffData state with the modified array
-    const isValidTable = isTableValid(index, updatedExitStaffData);
-    setNotValidTable(isValidTable);
-
-    setExistStaffData(updatedExitStaffData);
+    validateAndUpdateTable(index, updatedExitStaffData);
 
   };
 
-  const validateChangedRow = (index, updatedExitStaffData) => {
-    let staffMember = updatedExitStaffData[index];
-  
-    let temp = staffMember.available_leaves - (staffMember.absent + 0.5 * staffMember.half_days);
-    staffMember.remaining_leaves = temp //Math.max(0,temp);
-    
+  const validateAndUpdateTable = (index, updatedExitStaffData) => {
+    const staffMember = updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month];
 
+    // Calculate remaining leaves based on attendance
+    const tempRemainingLeaves = staffMember.available_leaves - (staffMember.absent + 0.5 * staffMember.half_days);
+    staffMember.remaining_leaves = Math.max(0, tempRemainingLeaves);
+
+    // Calculate deducted salary based on remaining leaves
     if (staffMember.remaining_leaves <= 0) {
-      staffMember.deducted_salary = staffMember.total_salary + staffMember.remaining_leaves * (staffMember.total_salary / staffMember.total_working_days);
-    } 
-    updatedExitStaffData[index] = staffMember;
+      staffMember.deducted_salary = staffMember.total_salary + (staffMember.remaining_leaves * (staffMember.total_salary / staffMember.total_working_days));
+    } else {
+      staffMember.deducted_salary = 0; // Reset deducted salary if leaves are available
+    }
+
+    // Update the staff member's data
+    updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month] = staffMember;
+
+    // Set the updated data back to state
+    setExistStaffData(updatedExitStaffData);
   };
 
   const isTableValid = (index, data) => {
@@ -293,7 +307,7 @@ const Payroll = ({adminId}) => {
                     <option value="2023-24">2023-24</option>
                     <option value="2024-25">2024-25</option>
                   </select>
-                </div>
+                </div>  
                 <div className='flex  items-center'>
                   <label htmlFor="month" className='font-bold text-md mr-2 w-full'>Month: </label>
                   <select name="month" className='rounded p-1' value={payrollDropdown.month}
@@ -328,122 +342,111 @@ const Payroll = ({adminId}) => {
                     <tbody>
                       {exitStaffData.map((staff, index) => (
                         <tr key={index}>
-                          <td className="text-center border border-black  bg-slate-200">
-                              <input
-                                type="text"
-                                name="fullName"
-                                value={staff.fullName}
-                                className="px-2 w-full bg-slate-200"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                              />
+                          <td className="text-center border border-black bg-slate-200">
+                            <input
+                              type="text"
+                              name="fullName"
+                              value={exitStaffData[index]?.fullName }
+                              className="px-2 w-full bg-slate-200"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="total_working_days"
-                                value={staff.total_working_days}
-                                min="0"
-                                max="31"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="total_working_days"
+                              value={prData[index]?.total_working_days }
+                              min="0"
+                              max="31"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="present"
-                                value={staff.present}
-                                min="0"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="present"
+                              value={prData[index]?.present }
+                              min="0"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="absent"
-                                value={staff.absent}
-                                min="0"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="absent"
+                              value={prData[index]?.absent }
+                              min="0"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="half_days"
-                                value={staff.half_days}
-                                min="0"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="half_days"
+                              value={prData[index]?.half_days }
+                              min="0"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="paid_leaves"
-                                value={staff.paid_leaves}
-                                min="0"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="paid_leaves"
+                              value={prData[index]?.paid_leaves }
+                              min="0"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                readOnly
-                                type="number"
-                                name="available_leaves"
-                                value={staff.available_leaves}
-                                min="0"
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                                
-                              />
+                            <input
+                              readOnly
+                              type="number"
+                              name="available_leaves"
+                              value={prData[index]?.available_leaves }
+                              min="0"
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                readOnly
-                                type="number"
-                                name="remaining_leaves"
-                                min="0"
-                                value={staff.remaining_leaves < 0 ? 0 :  staff.remaining_leaves}
-                                className="w-full px-2"
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                                
-                              />
-                          </td>
-                          
-                          <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="total_salary"
-                                value={staff.total_salary}
-                                min="0"
-                                className="w-full px-2"
-                                readOnly
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              readOnly
+                              type="number"
+                              name="remaining_leaves"
+                              min="0"
+                              value={(prData.remaining_leaves || 0) < 0 ? 0 : (prData.remaining_leaves || 0)}
+                              className="w-full px-2"
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
                           <td className="text-center border border-black">
-                              <input
-                                type="number"
-                                name="deducted_salary"
-                                value={staff.deducted_salary}
-                                min="0"
-                                className="w-full px-2"
-                                readOnly
-                                onChange={(e) => tableDataChangeHandle(e, index)}
-                                
-                              />
+                            <input
+                              type="number"
+                              name="total_salary"
+                              value={prData[index]?.total_salary }
+                              min="0"
+                              className="w-full px-2"
+                              readOnly
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
                           </td>
+                          <td className="text-center border border-black">
+                            <input
+                              type="number"
+                              name="deducted_salary"
+                              value={prData[index]?.deducted_salary }
+                              min="0"
+                              className="w-full px-2"
+                              readOnly
+                              onChange={(e) => tableDataChangeHandle(e, index)}
+                            />
+                          </td>
+
                           <td className="text-center border border-black flex">
                               <button
                                 className="bg-green-300 hover:bg-green-400 text-[9px] text-black font-bold py-2 px-2 rounded mr-2"

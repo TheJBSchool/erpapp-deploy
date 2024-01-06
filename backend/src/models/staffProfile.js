@@ -1,38 +1,6 @@
 const mongoose = require('mongoose');
 
-const staffSchema = new mongoose.Schema({
-    fullName: {
-        type: String,
-        required: true
-    },
-    fatherName: {
-        type: String,
-        required: true
-    },
-    contact: {
-        type: Number,
-        required: true
-    },
-    emergency_contact: {
-        type: Number,
-        required: true
-    },
-    dob: {
-        type: String,
-        required: true,
-    },
-    jobPosition: {
-        type: String,
-        required: true
-    },
-    aadharNo: {
-        type: String,
-        required: true,
-    },
-    joining_date: {
-        type: String,
-        required: true,
-    },
+const monthlyDataSchema = new mongoose.Schema({
     total_working_days: {
         type: Number,
         required: true,
@@ -73,9 +41,62 @@ const staffSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+});
+
+const sessionSchema = new mongoose.Schema({
+    session_name: {
+        type: String,
+        required: true,
+    },
+    months: {
+        // Using month names (e.g., January, February) as keys
+        type: Map,
+        of: monthlyDataSchema,
+        required: true,
+    },
+});
+
+const staffSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+    },
+    fatherName: {
+        type: String,
+        required: true,
+    },
+    contact: {
+        type: Number,
+        required: true,
+    },
+    emergency_contact: {
+        type: Number,
+        required: true,
+    },
+    dob: {
+        type: String,
+        required: true,
+    },
+    jobPosition: {
+        type: String,
+        required: true,
+    },
+    aadharNo: {
+        type: String,
+        required: true,
+    },
+    joining_date: {
+        type: String,
+        required: true,
+    },
+    total_salary:{
+        type: String,
+        required: true,
+    },
+    sessions: [sessionSchema],
     underBy: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
     },
 });
 

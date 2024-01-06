@@ -3,7 +3,7 @@ import { bgcolor2 } from "../Home/custom.js";
 import ConfirmationDialog from './ConfirmationDialog.jsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import { feeSet, updateFees, getStudent, getFeeDetails} from '../../controllers/loginRoutes.js';
+import { feeSet, updateFees, getStudent, getFeeDetails, UpdateStuFee} from '../../controllers/loginRoutes.js';
 import Receipt from './Receipt';
 import { useReactToPrint } from 'react-to-print';
 
@@ -12,9 +12,11 @@ import { useReactToPrint } from 'react-to-print';
 // quarterIcons -> each quarter fee paid or not (true/false) [1 based indexing]
 // quarterDeadlines -> quarter's deadlines [1 based indexing]
 const Fees = ({adminId}) => {
+  const [paymentMsg, setpaymentMsg]= useState('');
   const [payOther, setPayOther] = useState(false); //state for other(transportation fee) pay btn 
   const [quarterSelectIndex, setQuarterSelectIndex] = useState();
-  const [quarterIcons, setQuarterIcons] = useState([false, false, false, false, false]); // first false for other
+  const [quarterIcons, setQuarterIcons] = useState([false, false, false, false, false]); // first false for Transportation
+  const [isAccessible, setIsAccessible] = useState([false, false, false, false, false]); // first false for Transportation
   const [quarterDeadlines, setQuarterDeadlines] = useState([
     new Date(),
     new Date(),
@@ -35,6 +37,7 @@ const Fees = ({adminId}) => {
   const [currentDate, setCurrentDate] = useState('');
   const [filteredData, setFilteredData] = useState([]);
   const [currFee, setCurrFee] = useState();
+  // console.log("currFee",currFee)
   const [formData, setFormData] = useState({
     session:'',
     section: '',
@@ -51,6 +54,14 @@ const Fees = ({adminId}) => {
     underBy: adminId
   });
 
+  const [totalToBePaid, setTotalToBePaid] = useState(0);
+   const [selectedFees, setSelectedFees] = useState({
+    admissionFee: true,
+    academicFee: false,
+  });
+
+  const [lateFeeInput, setLateFeeInput] = useState(0);
+
   useEffect(() => {
     const formattedDate = new Date().toLocaleDateString();
     setCurrentDate(formattedDate);
@@ -60,30 +71,88 @@ const Fees = ({adminId}) => {
     if(formData){
       getStudent({session: formData.session, section: formData.section, class: formData.studentClass},adminId).then((resp)=>{
         setStudents(resp.data);
-        console.log("students fee",resp.data)
+        // console.log("students fee",resp.data)
       });
 
     }
 
-  },[formData])
+  },[formData]);
+
+  useEffect(() => {
+    // Calculate total based on selected fees
+    if(stuSelected){
+      let total = 0;
+      const feeDetails = stuSelected.feePayments["Quater"+quarterSelectIndex];
+      if (selectedFees.admissionFee) {
+        total += parseFloat(feeDetails?.adm_fee || 0);
+      }
+      if (selectedFees.academicFee) {
+        total += parseFloat(feeDetails.acdm_fee);
+      }
+      if (lateFeeInput>0) {
+        total += parseFloat(lateFeeInput);
+      }
+
+      setTotalToBePaid(total);
+    }
+  }, [selectedFees, quarterSelectIndex,lateFeeInput, stuSelected]);
+
+  useEffect(()=>{
+    if(stuSelected){
+
+      let StuFeeObj = stuSelected.feePayments;
+
+      let updatedQuarterIcons = [false, false, false, false, false];
+      let accessible= [false, false, false, false, false];
+
+      let onlyone=true;
+
+      for (let quarter = 1; quarter <= 4; quarter++) {
+          let currentQuarter = StuFeeObj[`Quater${quarter}`];
+
+          // Check if all fees for the current quarter are zero
+          if (currentQuarter.isPaid) {
+              updatedQuarterIcons[quarter] = true; // Update the corresponding index
+          }
+
+          if( currentQuarter.fee_applied===true && currentQuarter.isPaid===false && onlyone){
+              accessible[quarter]=true;
+              onlyone=false;
+          }
+      }
+
+      setQuarterIcons([...updatedQuarterIcons]);
+      setIsAccessible(accessible);
+    }
+  },[stuSelected]);
+
+
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+
+    setSelectedFees((prevSelectedFees) => ({
+      ...prevSelectedFees,
+      [name]: checked,
+    }));
+  };
 
   const receiptRef = useRef();
   const [showReceipt, setShowReceipt] = useState(false);
   const initialData = [
-    { class: 'Pre-Nursery', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100" , 'Date 4':"100", 'Late Fees after X days': "100"},
-    { class: 'Nursery', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100" , 'Date 4':"100", 'Late Fees after X days': "100"},
-    { class: 'LKG', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100" , 'Date 4':"100", 'Late Fees after X days': "100"},
-    { class: 'UKG', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100" , 'Date 4':"100", 'Late Fees after X days': "100"},
-    { class: '1st', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100" , 'Date 4':"100", 'Late Fees after X days': "100"},
-    { class: '2nd', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '3rd', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '4th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '5th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '6th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '7th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '8th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '9th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
-    { class: '10th', 'Admission Fees': "100", 'Academic Fees': "100", 'Late Fees': "100", 'Date 1': "100", 'Date 2': "100", 'Date 3': "100", 'Date 4':"100", 'Late Fees after X days': "100" },
+    { class: 'Pre-Nursery', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
+    { class: 'Nursery', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
+    { class: 'LKG', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
+    { class: 'UKG', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
+    { class: '1', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
+    { class: '2', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '3', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '4', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '5', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '6', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '7', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '8', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '9', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
+    { class: '10', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date(), 'Date 4': new Date(), 'Late Fees after X days': "2" },
   ];
 
 
@@ -105,7 +174,7 @@ const Fees = ({adminId}) => {
   const [success, setSuccess] = useState(false);
 
   const [tableData, setTableData] = useState(initialData);
-  const [feeSchemaData, setFeeSchemaData]= useState();
+  const [feeSchemaData, setFeeSchemaData]= useState(); // have atleast one value in table then it will not show error
   
   const columns = [
     'Pre-Nursery', 'Nursery', 'LKG', 'UKG',
@@ -146,6 +215,7 @@ const Fees = ({adminId}) => {
     //convert table to schema data and set schemaData state here
     const updatedSchemaData = newData.map((row) => ({
       class: row.class,
+      session: selectedSession,
       adm_fee: row['Admission Fees'],
       academic_fee: row['Academic Fees'],
       late_fee: row['Late Fees'],
@@ -156,7 +226,6 @@ const Fees = ({adminId}) => {
       late_fee_x: row['Late Fees after X days'],
       underBy: adminId
     }));
-
     setFeeSchemaData(updatedSchemaData);
     setTableData(newData);
   };
@@ -185,49 +254,14 @@ const Fees = ({adminId}) => {
     setNoteFee(0);
     for(let i=0;i<feeSchemaData.length;i++)
     {
-      feeSet(feeSchemaData[i]).then((resp)=>{
-        console.log(resp);  
+      feeSet(feeSchemaData[i],adminId).then((resp)=>{
+        // console.log(resp); 
+        // if(resp.status===201){
+        //   
+        // } 
       })
     }
-
-    // if(FeeSelectedItem === "setfees"){
-    //   setFees().then((resp) => {
-    //       if (resp.status !== 201) {
-    //         const data = resp.json();
-    //         setFeeSchemaData(data);
-    //         setTableData(mapFeeSchemaToTableData(data)); 
-    //       } 
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error:", error);
-    //     })
-    //     .finally(() => {
-    //       setLoading(false); // Stop loading
-    //   });
-    // }
-    // else{
-    //   updateFees(feeSchemaData).then((resp) => {
-
-    //       if (resp.status !== 201) {
-    //         setSuccess(true);
-    //       } else {
-    //         setSuccess(false); 
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error:", error);
-    //     })
-    //     .finally(() => {
-    //       setLoading(false); // Stop loading
-    //   });
-
-    // }
-
-
-    // setTimeout(() => {
-    //   console.log("Delayed for 1 second.");
-      
-    // }, "2000");
+    alert(`Fee for session ${selectedSession} set successfully`);
   };
 
   const formSubmit = () =>{
@@ -298,25 +332,15 @@ const Fees = ({adminId}) => {
   }
 
   const searchReceipt = () => {
-    if (formData.session && formData.section && formData.studentClass && fullName) {
-      getFeeDetails({ session: stuSelected.session, class: stuSelected.class },adminId).then((resp) => {
-        console.log("getFeeDetails",resp);
-        setCurrFee(resp.data);
-        setDeadlines(resp.data.date1);
+    if (formData.session && formData.studentClass && fullName) {
+      getFeeDetails({ session: formData.session, class: formData.studentClass },adminId).then((resp) => {
+        // console.log("getFeeDetails",resp);
+        setCurrFee(resp[0]);
         setPayBtn(true);
       })
     } 
 
-    let feeArray = stuSelected.feePayments;
-    let updatedQuarterIcons = [false, false, false, false, false];
-    for (let quarter = 1; quarter <= 4; quarter++) 
-    {
-      const payment = feeArray.find(payment => payment.quarter === quarter);
-      if (payment) {
-        updatedQuarterIcons[quarter]=true;
-      }
-    }
-    setQuarterIcons([...updatedQuarterIcons]);
+
   };
   
   const payFees = (quarter) => {
@@ -337,85 +361,90 @@ const Fees = ({adminId}) => {
 
   const handlePaymentAmountChange = (e) => {
     const amount = parseFloat(e.target.value);
-    setPaymentAmount(amount);
+    if(amount <= totalToBePaid){
+      setPaymentAmount(amount);
+    }else if(amount){
+      setPaymentAmount(0);
+    }
   };
 
   // Function to process the payment and update the fees
-  const handlePayment = () => {
-    const updatedFeeData = { ...feeData };
-    let money = paymentAmount;
+  const handlePayment = (quaterNo) => {
+    const isConfirm = window.confirm("Are You Sure Want to Pay");
+    if(isConfirm){
+      const quater = "Quater"+quaterNo;
+      const updatedFeeData = {
+        adm_fee:stuSelected.feePayments[quater].adm_fee, 
+        acdm_fee:stuSelected.feePayments[quater].acdm_fee,
+        late_fee:lateFeeInput,
+        late_fee_ispaid: stuSelected.feePayments[quater].late_fee_ispaid,
+        isPaid: false
+      };
+      let money = paymentAmount;
 
-    if (money <= 0) {
-      // Handle the case where the payment amount is zero or negative
-      // show an error message or take appropriate action
-      return;
+      if (money <= 0) {
+        // Handle the case where the payment amount is zero or negative
+        // show an error message or take appropriate action
+        return;
+      }
+      if (updatedFeeData.adm_fee > 0) {
+        const admissionFeeDeducted = Math.min(updatedFeeData.adm_fee, money);
+        updatedFeeData.adm_fee -= admissionFeeDeducted;
+        money -= admissionFeeDeducted;
+      }
+
+      if (updatedFeeData.acdm_fee > 0 && selectedFees.academicFee) {
+        const acadmicFeeDeducted = Math.min(updatedFeeData.acdm_fee, money);
+        updatedFeeData.acdm_fee -= acadmicFeeDeducted;
+        money -= acadmicFeeDeducted;
+      }
+
+      if (updatedFeeData.late_fee > 0) {
+        const lateFeeDeducted = Math.min(updatedFeeData.late_fee, money);
+        updatedFeeData.late_fee -= lateFeeDeducted;
+        money -= lateFeeDeducted;
+      }
+      if(updatedFeeData.late_fee===0){
+        updatedFeeData.late_fee_ispaid=true;
+      }
+      else{
+        updatedFeeData.late_fee_ispaid=false;
+      }
+
+      if(updatedFeeData.acdm_fee===0 && updatedFeeData.late_fee===0){
+        if(updatedFeeData.adm_fee && updatedFeeData.adm_fee !==0 ){
+          updatedFeeData.isPaid = false;
+        }
+        else{
+          updatedFeeData.isPaid = true;
+        }
+      }
+
+      //Update to Database
+      UpdateStuFee(stuSelected._id,quater, updatedFeeData).then((resp)=>{
+        // console.log("UpdateStuFee Success");
+        // console.log("resp",resp);
+        setpaymentMsg(resp.message);
+        setInterval(()=>{
+          setpaymentMsg('');
+        },5000);
+        setStuSelected(resp.student)
+        if(resp.student){
+          setLateFeeInput(resp.student.feePayments[quater].late_fee);
+        }
+        setPaymentAmount(0);
+      });
     }
-    if (updatedFeeData.pandingFee > 0) {
-      // Deduct from late fee
-      const pandingFeeDeducted = Math.min(updatedFeeData.pandingFee, money);
-      updatedFeeData.pandingFee -= pandingFeeDeducted;
-      money -= pandingFeeDeducted;
-    }
-
-    // Deduct the payment amount from different fee types
-    if (updatedFeeData.lateFee > 0) {
-      // Deduct from late fee
-      const lateFeeDeducted = Math.min(updatedFeeData.lateFee, money);
-      updatedFeeData.lateFee -= lateFeeDeducted;
-      money -= lateFeeDeducted;
-    }
-
-    if (updatedFeeData.admissionFee > 0) {
-      // Deduct from admission fee
-      // console.log(updatedFeeData.admissionFee);
-      // console.log('paymentAmount')
-      // console.log(paymentAmount);
-      const admissionFeeDeducted = Math.min(updatedFeeData.admissionFee, money);
-      // console.log(admissionFeeDeducted);
-      updatedFeeData.admissionFee -= admissionFeeDeducted;
-      money -= admissionFeeDeducted;
-    }
-
-    if (updatedFeeData.annualFee > 0) {
-      // Deduct from annual fee
-      const annualFeeDeducted = Math.min(updatedFeeData.annualFee, money);
-      updatedFeeData.annualFee -= annualFeeDeducted;
-      money -= annualFeeDeducted;
-    }
-
-    if (updatedFeeData.transportationFee > 0) {
-      // Deduct from transportation fee
-      const transportationFeeDeducted = Math.min(updatedFeeData.transportationFee, money);
-      updatedFeeData.transportationFee -= transportationFeeDeducted;
-      money -= transportationFeeDeducted;
-    }
-
-    // At this point, the remaining paymentAmount should be 0
-    if (money > 0) {
-      // Handle the case where there's remaining payment that couldn't be deducted
-      // You can show an error message or take appropriate action
-      return;
-    }
-
-    // Update the fee data with the deducted amounts
-    setFeeData(updatedFeeData);
-
-    // You can also update the totalPaid and remainingFee accordingly
-    const remFees = feeData.pandingFee +
-                    feeData.admissionFee +
-                    feeData.annualFee +
-                    feeData.transportationFee +
-                    feeData.lateFee - paymentAmount;
-    setRemainingFee(remFees);
-
-    // You can then proceed with updating the fees in your backend.
-    // Example: setFees(updatedFeeData).then((resp) => { ... });
   };
 
   const clickHandle = (e)=>{
     setStuSelected(e);
     setFullName(e.name);
     setSearchStuDropdown(false);
+    if(quarterSelectIndex>0){
+      const quater= "Quater"+quarterSelectIndex;
+      setLateFeeInput(e.feePayments[quater].late_fee);
+    }
   }
 
   
@@ -431,10 +460,15 @@ const Fees = ({adminId}) => {
   const quarterSelectHandle = (e,index)=>{
     e.preventDefault();
     if(quarterIcons[index+1]===false){
-      console.log("insert",index+1);
       setQuarterSelectIndex(index+1)
-
     }
+    setSelectedFees({
+      admissionFee: true,
+      academicFee: false,
+    });
+    const no =index+1;
+    const quater= "Quater"+no;
+    setLateFeeInput(stuSelected?.feePayments[quater]?.late_fee);
   }
   // console.log(quarterSelectIndex);
 
@@ -442,6 +476,8 @@ const Fees = ({adminId}) => {
     e.preventDefault();
     setPayOther(true);
   }
+
+  
 
 
   return (
@@ -555,13 +591,13 @@ const Fees = ({adminId}) => {
                         } else {
                           return (
                             <tr key={rowIndex}>
-                              <td className="px-4 py-2">{row}</td>
+                              {row==="Admission Fees" ? (<td className="px-4 py-2"> {row}<span className='text-[10px]'> (one time)</span></td>): row==="Academic Fees"? (<td className="px-4 py-2">{row} <span className='text-[10px]'>(anually)</span></td>): (<td className="px-4 py-2">{row}</td>) }
                               {tableData.map((data, columnIndex) => (
                                 <td key={columnIndex} className="px-4 py-2">
                                   <input
                                     className='w-full'
                                     type="number"
-                                    value={data[row]}
+                                    value={data[row] || ''}
                                     onChange={(e) => handleCellChange(e.target.value, columnIndex, row)}
                                   />
                                 </td>
@@ -676,7 +712,7 @@ const Fees = ({adminId}) => {
                     <input
                       type="text"
                       name="rollno"
-                      value={stuSelected?.rollno}
+                      value={stuSelected?.rollno || ''}
                       readOnly
                       // onChange={handleInputChange}
                       // required
@@ -693,7 +729,7 @@ const Fees = ({adminId}) => {
                       readOnly
                       type="text"
                       name="fatherName"
-                      value={stuSelected?.father_name}
+                      value={stuSelected?.father_name || ''}
                       // onChange={handleInputChange}
                       // required
                       className="w-full px-4 py-2 border rounded-lg bg-slate-100 focus:outline-none"
@@ -719,9 +755,9 @@ const Fees = ({adminId}) => {
                     
                     <div className='flex mb-2'>
                       {quarterIcons.slice(1).map((val, ind) => (
-                        <button onClick={(e)=>quarterSelectHandle(e,ind)} className={`px-4 py-2 ${val?'bg-green-600' : 'bg-red-600'}  text-white rounded-full mr-4 ${(quarterSelectIndex===ind+1 && val===false) ?'bg-red-700' : ''}` } key={ind}>Quarter {ind + 1}</button>
+                        <button onClick={(e)=>quarterSelectHandle(e,ind)} className={`px-4 py-2 ${val?'bg-green-600' : 'bg-red-600'}  text-white rounded-full mr-4 ${(quarterSelectIndex===ind+1 && val===false) ?'bg-red-700 ' : ''}` } key={ind}>Quarter {ind + 1}</button>
                       ))}
-                      <button onClick={(e)=>quarterSelectHandle(e,-1)} className={`px-4 p bg-red-600 text-white rounded-full mr-4 ${quarterSelectIndex===0 ?'bg-red-700' : ''}` } >Other</button>
+                      <button onClick={(e)=>quarterSelectHandle(e,-1)} className={`px-4 p bg-red-600 text-white rounded-full mr-4 ${quarterSelectIndex===0 ?'bg-red-700' : ''}` } >Transportation Fee</button>
                     </div>
                     {quarterSelectIndex===0  && (
                       <div className="flex flex-col shadow-md rounded-lg p-7 text-center">
@@ -743,144 +779,140 @@ const Fees = ({adminId}) => {
                         </div>
                     )}
 
-                    {quarterSelectIndex>0 && (
+                    {quarterSelectIndex>0 && stuSelected.feePayments["Quater"+quarterSelectIndex].isPaid===false && (
                     <div>
 
-                     {quarterSelectIndex!==0  && (<h1>Quarter {quarterSelectIndex} Fee's Type :-</h1>)}
-                    <div className="flex flex-col justify-center items-center font-semibold">
-                      <div className='flex'>
-                        <div className="flex flex-col items-end mr-10">
-                          <label htmlFor='pandingfee' className=" mb-2">Pending Fee: </label>
-                          <label htmlFor='admissionfee' className=" mb-2">Admission Fee: </label>
-                          <label htmlFor='annualfee' className=" mb-2">Academic Fee:</label>
-                          <label htmlFor='transfee' className=" mb-2">Transportation Fee:</label>
-                           <label htmlFor='latefee' className=" mb-2">Late Fee:</label>
+                    {(stuSelected.feePayments["Quater"+quarterSelectIndex].fee_applied)  ? ( 
+                      <div>
+                      {isAccessible[quarterSelectIndex] ? (
+                        <div>
+
+                          {quarterSelectIndex!==0  && (<h1>Quarter {quarterSelectIndex} Fee's Type :-</h1>)}
+                          <h1>{stuSelected.feePayments["Quater"+quarterSelectIndex].ispaid}</h1>
+                          <div className="flex flex-col justify-center items-center font-semibold">
+                            
+                            <div className='flex'>
+                              <div className="flex flex-col items-end mr-10">
+                                {stuSelected.feePayments["Quater"+quarterSelectIndex].adm_fee>0 && ( 
+                                  <label htmlFor='admissionfee' className=" mb-2">Admission Fee: </label>
+                                )}
+                                <label htmlFor='annualfee' className=" mb-2">Academic Fee:</label>
+                                <label htmlFor='latefee' className=" mb-2">Late Fee:</label>
+                              </div>
+
+                              <div className="flex flex-col">
+                                
+                                {stuSelected.feePayments["Quater"+quarterSelectIndex].adm_fee>0 && ( 
+
+                                  <div className='mb-2'>  
+                                    <input
+                                      checked={stuSelected.feePayments["Quater"+quarterSelectIndex]?.adm_fee >0}
+                                      className='mr-2'
+                                      type="checkbox"
+                                      name="admissionFee"
+                                      readOnly
+                                    />
+                                    <span>{stuSelected.feePayments["Quater"+quarterSelectIndex]?.adm_fee}</span>
+                                    <span className='text-green-600'>{stuSelected.feePayments["Quater"+quarterSelectIndex].adm_fee>0 ? "":" Paid" }</span>
+                                  </div>
+                                )}
+                                <div className='mb-2'>
+                                  <input
+                                      checked={selectedFees.academicFee}
+                                      className='mr-2'
+                                      type="checkbox"
+                                      name="academicFee"
+                                      onChange={handleCheckboxChange}
+                                    />
+                                  <span >{stuSelected.feePayments["Quater"+quarterSelectIndex].acdm_fee}</span>
+                                </div>
+                                <div className='mb-2'>
+                                  <input type="number" className='px-2 py-1 outline-none' min={0} value={lateFeeInput} onChange={(e)=> setLateFeeInput(e.target.value)} />
+                                </div>
+                                
+
+                                
+                                
+                                
+                              </div>
+                            </div>
+                            
+                            
+                            <div className="flex">
+                              <label className="block mb-2 mt-5 mr-8">Total to be Paid:</label>
+                              <input className='mb-2 mt-5 p-1 rounded-md px-2 bg-yellow-50 outline-none' value={totalToBePaid} readOnly    />
+                            </div>
+                          </div>
+
+                          <div className='mt-4'>
+                            <div className="flex mb-4">
+                              <label className="block mb-2">Payment Amount:</label>
+                              <input
+                                type="number"
+                                name="paymentAmount"
+                                value={paymentAmount}
+                                min={0}
+                                max={parseInt(totalToBePaid)}
+                                onChange={handlePaymentAmountChange}
+                                className="px-4 ml-4  border rounded-lg focus:outline-none "
+                              />
+                              <button
+                                type="button"
+                                onClick={()=>handlePayment(quarterSelectIndex)}
+                                className="ml-2 bg-green-500 hover:bg-green-600 text-white font-bold px-4 rounded"
+                              >
+                                Enter
+                              </button> 
+                            </div>
+                          </div>
+                          
+                          <div className='flex font-semibold'>
+                            <div className="flex flex-col mr-10">
+                              <label className=" mb-2">Fee's Paid: </label>
+                              <label className=" mb-2">Remaining Fee's:</label>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className='mb-2 text-green-500'>{paymentAmount}</span>
+                              <span className='mb-2 text-red-500'>{totalToBePaid-paymentAmount}</span>
+                            </div>
+                          </div>
+
+                          { paymentMsg && (
+                            <div className='mt-2 mb-2'>
+                              <Alert severity="success">{paymentMsg}</Alert>
+                            </div>
+                          )}
+
+                        
+                        <div className="flex justify-end mt-4">
+                          <button
+                            onClick={printReceipt}
+                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Print Receipt
+                          </button>
+
+                          {/* <button
+                            onClick={createManualReceipt}
+                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Create Manual Receipt
+                          </button> */}
                         </div>
-
-                        <div className="flex flex-col">
-                          <div className='mb-2'>
-                            <input
-                                  readOnly
-                                  className='mr-2'
-                                  type="checkbox"
-                                  name="pandingfee"
-                                  checked={feeData.pandingFee > 0}
-                                  // onChange={() => setAdmissionFeeApplied(!admissionFeeApplied)}
-                                />
-                            <span>{feeData.pandingFee}</span>
-                          </div>
-                          <div className='mb-2'>
-                            <input
-                                  readOnly
-                                  className='mr-2'
-                                  type="checkbox"
-                                  name="admissionfee"
-                                  checked={feeData.admissionFee> 0}
-                                  // onChange={() => setAdmissionFeeApplied(!admissionFeeApplied)}
-                                />
-                            <span>{feeData.admissionFee}</span>
-                          </div>
-                          <div className='mb-2'>
-                            <input
-                                  readOnly
-                                  className='mr-2'
-                                  type="checkbox"
-                                  name="annualfee"
-                                  checked={feeData.annualFee}
-                                  // onChange={() => setAdmissionFeeApplied(!admissionFeeApplied)}
-                                />
-                            <span >{feeData.annualFee}</span>
-                          </div>
-                          <div className='mb-2'>
-                            <input
-                                  readOnly
-                                  className='mr-2'
-                                  type="checkbox"
-                                  name="transfee"
-                                  checked={feeData.transportationFee >0}
-                                  // onChange={() => setAdmissionFeeApplied(!admissionFeeApplied)}
-                                />
-                            <span >{feeData.transportationFee}</span>
-                          </div>
-                          <div className='mb-2'>
-                            <input
-                                  readOnly
-                                  className='mr-2'
-                                  type="checkbox"
-                                  name="latefee"
-                                  checked={feeData.lateFee >0 }
-                                  // onChange={() => setAdmissionFeeApplied(!admissionFeeApplied)}
-                                />
-                            <span>{feeData.lateFee}</span>
-                          </div>
-                          
-
-                          
-                          
-                          
+                        <Receipt receiptData={formData} refer={receiptRef} />
                         </div>
-                      </div>
-                      
-                      <div className="flex">
-                        <label className="block mb-2 mt-5 mr-8">Total to be Paid:</label>
-                        <input className='mb-2 mt-5 p-1 rounded-md px-2'
-                          value= {feeData.pandingFee +feeData.admissionFee +
-                            feeData.annualFee +
-                            feeData.transportationFee +
-                            feeData.lateFee}
-                        />
-                      </div>
-                    </div>
-
-                    <div className='mt-4'>
-                      <div className="flex mb-4">
-                        <label className="block mb-2">Payment Amount:</label>
-                        <input
-                          type="number"
-                          name="paymentAmount"
-                          value={paymentAmount}
-                          onChange={handlePaymentAmountChange}
-                          className="px-4 ml-4  border rounded-lg focus:outline-none "
-                        />
-                        <button
-                          type="button"
-                          onClick={handlePayment}
-                          className="ml-2 bg-green-500 hover:bg-green-600 text-white font-bold px-4 rounded"
-                        >
-                          Enter
-                        </button> 
-                      </div>
-                    </div>
-                    
-                    <div className='flex font-semibold'>
-                      <div className="flex flex-col mr-10">
-                        <label className=" mb-2">Fee's Paid: </label>
-                        <label className=" mb-2">Remaining Fee's:</label>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className='mb-2 text-green-500'>{paymentAmount}</span>
-                        <span className='mb-2 text-red-500'>{remainingFees}</span>
-                      </div>
-                    </div>
-
-                  
-                  <div className="flex justify-end mt-4">
-                    <button
-                      onClick={printReceipt}
-                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Print Receipt
-                    </button>
-
-                    {/* <button
-                      onClick={createManualReceipt}
-                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Create Manual Receipt
-                    </button> */}
+                      ) :(
+                        <div>
+                          <p className='text-red-600 font-extrabold'>First pay the Quater{quarterSelectIndex-1} Fees.</p>
+                        </div>
+                      )}
                   </div>
-                  <Receipt receiptData={formData} refer={receiptRef} />
-                  </div>)}
+                  ) : <div>
+                        <span className='text-red-400 font-extrabold mb-8'>{stuSelected.feePayments["Quater"+quarterSelectIndex].fee_applied ? "": "Fee Not Applied"}</span>
+                      </div>
+                   }
+                  </div>
+                  )}
                 </div>
                 )}
               </form>
@@ -895,4 +927,6 @@ const Fees = ({adminId}) => {
   )
 }
 
-export default Fees
+export default Fees;
+
+

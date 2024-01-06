@@ -75,7 +75,7 @@ const Calendar = ({ students }) => {
                     {day && (
                         <div className="relative">
                         <span className="text-sm">{format(day, 'd')}</span>
-                        {students.map((student) => {
+                        {students && students.map((student) => {
                             const studentDOB = student.DOB ? new Date(student.DOB) : null;
                             if (studentDOB && studentDOB.getMonth() === day.getMonth() && studentDOB.getDate() === day.getDate()) {
                             return (

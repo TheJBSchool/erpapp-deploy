@@ -88,12 +88,111 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.ObjectId,
         required: true
     },
-    feePayments: [
-        {
-            quarter: Number,         // 1, 2, 3, or 4
-            paymentDate: Date       // Date when the fee was paid for the quarter
+    feePayments: {
+        Quater1:{ //April May June
+            fee_applied:{
+                type:Boolean
+            },
+            isPaid:{
+                type:Boolean,
+                default: false
+            },
+            adm_fee:{
+                type: Number
+            },
+            acdm_fee:{
+                type: Number
+            },
+            pending_fee:{
+                type: Number
+            },
+            late_fee:{
+                type: Number
+            },
+            late_fee_ispaid:{
+                type:Boolean,
+                default: false
+            }
+        },
+        Quater2:{ // July Augest September
+            fee_applied:{
+                type:Boolean
+            },
+            isPaid:{
+                type:Boolean,
+                default: false
+            },
+            adm_fee:{
+                type: Number
+            },
+            acdm_fee:{
+                type: Number
+            },
+            pending_fee:{
+                type: Number
+            },
+            late_fee:{
+                type: Number
+            },
+            late_fee_ispaid:{
+                type:Boolean,
+                default: false
+            }
+
+        },
+        Quater3:{ // October November December
+            fee_applied:{
+                type:Boolean
+            },
+            isPaid:{
+                type:Boolean,
+                default: false
+            },
+            adm_fee:{
+                type: Number
+            },
+            acdm_fee:{
+                type: Number
+            },
+            pending_fee:{
+                type: Number
+            },
+            late_fee:{
+                type: Number
+            },
+            late_fee_ispaid:{
+                type:Boolean,
+                default: false
+            }
+
+        },
+        Quater4:{ // January February March
+            fee_applied:{
+                type:Boolean
+            },
+            isPaid:{
+                type:Boolean,
+                default: false
+            },
+            adm_fee:{ 
+                type: Number
+            },
+            acdm_fee:{
+                type: Number
+            },
+            pending_fee:{
+                type: Number
+            },
+            late_fee:{
+                type: Number
+            },
+            late_fee_ispaid:{
+                type:Boolean,
+                default: false
+            }
+
         }
-    ],
+    },
     pending_fees: {
         type: Number,
         default: 0

@@ -160,8 +160,8 @@ export const adminDelete = async (id) => {
 }
 
 
-export const feeSet = async (obj) =>{
-    const res = await fetch(`${base}/setFeeStudent`, {
+export const feeSet = async (obj,adminId) =>{
+    const res = await fetch(`${base}/setFeeStudent/${adminId}`, {
         method: 'POST',
         body: JSON.stringify(obj),
         headers: {
@@ -171,6 +171,19 @@ export const feeSet = async (obj) =>{
     const ans = await res.json();
     return ans;
 }
+
+export const UpdateStuFee = async (s_id, quater,obj) => {
+    const res = await fetch(`${base}/updateStuFee/${s_id}/${quater}`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};
+
 
 export const updateFees = async () =>{
 
@@ -253,6 +266,19 @@ export const registerStaff = async (obj) =>{
     const ans = await res.json();
     return ans;
 }
+
+export const getStaff = async (adminId) =>{
+    const res = await fetch(`${base}/getStaff/${adminId}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const ans = await res.json();
+    return ans;
+}
+
+
 
 export const getTimetableByClass = async (adminId,classValue) => {
   try {
@@ -790,3 +816,5 @@ export const student_results = async (obj) => {
     const ans = await res.json();
     return ans;
 };
+
+

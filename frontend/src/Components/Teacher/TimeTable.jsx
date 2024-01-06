@@ -9,11 +9,11 @@ const TimeTable = ({ teacherData}) => {
     const [timeTableType, setTimeTableType] = useState('personal');
 
     useEffect(()=>{
-        getTeacherTimeTable(teacherData.name).then((resp)=>{
+        getTeacherTimeTable(teacherData.underBy).then((resp)=>{
             setTeacherTimetable(resp);
         })
-        getTimetableByClass(teacherData.class_teacher).then((resp) => {
-            console.log("resp",resp)
+        getTimetableByClass(teacherData.underBy,teacherData.class_teacher).then((resp) => {
+            // console.log("resp",resp)
             if(resp){
                 setClassTimeTable(resp)
             }
@@ -115,7 +115,7 @@ const TimeTable = ({ teacherData}) => {
                                     <p>{row[0].startTime} to {row[0].endTime}</p>
                                 </td>
                                 {row  && row.map((item,ind)=>(
-                                    <td className="border px-4 py-2 ">
+                                    <td key={ind} className="border px-4 py-2 ">
                                         {item.type === "Break" ? (
                                             <p className='text-red-400'>Break </p> 
                                         ):(
