@@ -18,6 +18,7 @@ const Subject = require('../src/models/subjects');
 const ExamType = require('../src/models/examTypes');
 const Result = require('../src/models/result');
 const ResultReq = require('../src/models/resultReq');
+const FeeReceipt = require('../src/models/feeReceipt');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
@@ -270,9 +271,7 @@ router.post('/setFeeStudent/:adminId', async (req, res) => {
             { upsert: true, new: true }
         );
 
-        console.log("class", req.body.class);
         const students = await Student.find({ underBy: adminId, session: req.body.session, class: req.body.class });
-        console.log("all students", students);
 
         for (const student of students) {
             const quarterToUpdate = getStartingQuarter(student.admission_date);
@@ -297,7 +296,6 @@ router.post('/setFeeStudent/:adminId', async (req, res) => {
                     student.feePayments[quarter].pending_fee = 0;
                     student.feePayments[quarter].late_fee = 0;
                     student.feePayments[quarter].fee_applied = false;
-                    console.log("fee_applied:false");
                 }
             }
 
@@ -310,7 +308,6 @@ router.post('/setFeeStudent/:adminId', async (req, res) => {
                         student.feePayments[quarter] = {}; // Initialize if absent for the specific quarter
                     }
                     student.feePayments[quarter].fee_applied = true;
-                     console.log("fee_applied:true");
                 });
             }
 
@@ -326,6 +323,65 @@ router.post('/setFeeStudent/:adminId', async (req, res) => {
         return res.json({ error: e.message });
     }
 });
+
+router.post('/setFeeForStudent', async (req, res) => {
+    const {adminId,sId, session, stuClass} = req.body;
+    try {
+        const feeData = await Fee.find({ underBy: adminId, session:session, class: stuClass });
+
+        const student = await Student.find({_id: sId });
+
+        const quarterToUpdate = getStartingQuarter(student.admission_date);
+
+        if (!student.feePayments) {
+            student.feePayments = {}; // Initialize if absent
+        }
+
+        // Ensure the feePayments object for the determined quarter exists or initialize it
+        if (!student.feePayments[quarterToUpdate]) {
+            student.feePayments[quarterToUpdate] = {}; // Initialize if absent for the specific quarter
+        }
+
+        student.feePayments[quarterToUpdate].adm_fee = feeData.adm_fee.toString();
+
+        const academicFeePerQuarter = parseFloat(feeData.academic_fee) / 4;
+
+        // Update acdm_fee for all quarters
+        for (const quarter in student.feePayments) {
+            if (Object.hasOwnProperty.call(student.feePayments, quarter)) {
+                student.feePayments[quarter].acdm_fee = academicFeePerQuarter.toString();
+                student.feePayments[quarter].pending_fee = 0;
+                student.feePayments[quarter].late_fee = 0;
+                student.feePayments[quarter].fee_applied = false;
+            }
+        }
+
+        const quarters = Object.keys(student.feePayments);
+        const indexToUpdate = quarters.indexOf(quarterToUpdate);
+        // Check if the quarter to update exists and update fee_applied for subsequent quarters
+        if (indexToUpdate !== -1) {
+            quarters.slice(indexToUpdate).forEach((quarter) => {
+                if (!student.feePayments[quarter]) {
+                    student.feePayments[quarter] = {}; // Initialize if absent for the specific quarter
+                }
+                student.feePayments[quarter].fee_applied = true;
+            });
+        }
+
+        try {
+            await student.save();
+        } catch (saveErr) {
+            console.error(`Error saving student ${student._id}: ${saveErr}`);
+        }
+    
+
+        return res.status(201).json({ resp, status: 201 });
+    } catch (e) {
+        return res.json({ error: e.message });
+    }
+});
+
+
 
 
 router.post('/UpdateStuFee/:sid/:quater', async (req, res) => {
@@ -394,9 +450,10 @@ router.get('/getFeeDetails', async (req, res) => {
     }
 })
 
-router.get('/retrieve', async (req, res) => {
+router.get('/retrieve/:adminId', async (req, res) => {
+    const {adminId} = req.params;
     try {
-        const counter = await Counter.findOne({ name: 'invoiceCount' });
+        const counter = await Counter.findOne({underBy:adminId, name: 'invoiceCount' });
         if (counter) {
             res.status(200).json({ invoiceNumber: counter.count });
         } else {
@@ -407,10 +464,12 @@ router.get('/retrieve', async (req, res) => {
     }
 });
 
-router.post('/updatereceiptno',  async (req, res) => {
+router.post('/updatereceiptno/:adminId',  async (req, res) => {
+  const adminId = req.params.adminId;
+  console.log("updatereceiptno Amdin",adminId)
     try {
         const updatedCounter = await Counter.findOneAndUpdate(
-            { name: 'invoiceCount' },
+            { name: 'invoiceCount', underBy:adminId },
             { $inc: { count: 1 } },
             { new: true, upsert: true }
         );
@@ -1039,4 +1098,23 @@ router.post('/studentresults', async (req, res) => {
   }
 });
 
+router.post('/saveReceipt', async (req, res) => {
+  try {
+      const new_receipt= new FeeReceipt(req.body);
+      const resp = await new_receipt.save();
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+router.get('/saveReceipt/:sid', async (req, res) => {
+  const studentId= req.params.sid;
+  try {
+      const new_receipt= await FeeReceipt.find({studentId:studentId});
+      return res.status(201).json(new_receipt);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
 module.exports = router;

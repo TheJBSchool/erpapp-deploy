@@ -210,9 +210,9 @@ export const getFeeDetails = async(obj,adminId) =>{
     return ans;
 }
 
-export const getReceiptNo = async() =>{
+export const getReceiptNo = async(adminId) =>{
     try {
-        const res = await fetch(`${base}/retrieve`, {
+        const res = await fetch(`${base}/retrieve/${adminId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -232,9 +232,9 @@ export const getReceiptNo = async() =>{
         return 0; 
     }
 }
-export const updateReceiptNo = async() =>{
+export const updateReceiptNo = async(adminId) =>{
     try {
-        const res = await fetch(`${base}/updatereceiptno`, {
+        const res = await fetch(`${base}/updatereceiptno/${adminId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -807,6 +807,19 @@ export const approve_unlock_result = async (resultId) => {
 
 export const student_results = async (obj) => {
     const res = await fetch(`${base}/studentresults`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};
+
+
+export const saveReceipt = async (obj) => {
+    const res = await fetch(`${base}/saveReceipt`, {
         method: 'POST',
         body: JSON.stringify(obj),
         headers: {

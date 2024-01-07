@@ -264,7 +264,7 @@ const Payroll = ({adminId}) => {
             </div>
           )}
           {payrollDropdown.staffpayroll=== "Digital Bahi" && (
-            <DigitalBahi staffMemeber={exitStaffData[digtalBahiIndex]} digitalBahiChangeHandle={digitalBahiChangeHandle} DigitalBahiHandleSubmit={DigitalBahiHandleSubmit}/>
+            <DigitalBahi adminId={adminId} staffMemeber={exitStaffData[digtalBahiIndex]} digitalBahiChangeHandle={digitalBahiChangeHandle} DigitalBahiHandleSubmit={DigitalBahiHandleSubmit}/>
           )}
 
           {(payrollDropdown.staffpayroll === "New Staff Entry" || payrollDropdown.staffpayroll === "Edit Staff") && ( 

@@ -116,7 +116,7 @@ const AdminDashboard = () => {
           {/* Make them router */}
           {selectedItem === "myProfile" && <MyProfile adminData={adminData}/>    }
           {selectedItem === "attendace" && <Attendance adminId={adminData._id} />}
-          {selectedItem === "fees" && <Fees adminId={adminData._id} />}
+          {selectedItem === "fees" && <Fees adminId={adminData._id} schoolName={adminData.school_name} />}
           {selectedItem === "payroll" && <Payroll adminId={adminData._id} />}
           {selectedItem === "syllabus" && <Syllabus adminId={adminData._id} />}
           {selectedItem === "timeTable" && <TimeTable adminId={adminData._id} />}

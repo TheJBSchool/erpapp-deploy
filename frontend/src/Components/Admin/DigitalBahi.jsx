@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {getReceiptNo,updateReceiptNo} from '../../controllers/loginRoutes.js';
 
-const DigitalBahi = ({staffMemeber, digitalBahiChangeHandle, DigitalBahiHandleSubmit}) => {
+const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBahiHandleSubmit}) => {
   const [receiptNo, setReceiptNo] = useState(0);
   const [currentDate, setCurrentDate] = useState('');
   const [inputAmount, setInputAmount] = useState(0);
@@ -9,7 +9,7 @@ const DigitalBahi = ({staffMemeber, digitalBahiChangeHandle, DigitalBahiHandleSu
   useEffect(() => {
     const formattedDate = new Date().toLocaleDateString();
     setCurrentDate(formattedDate);
-    getReceiptNo().then((resp) => {
+    getReceiptNo(adminId).then((resp) => {
       setReceiptNo(resp);
     })
   },[]);
@@ -22,7 +22,7 @@ const DigitalBahi = ({staffMemeber, digitalBahiChangeHandle, DigitalBahiHandleSu
       // staffMemeber.remaining_amount= staffMemeber.remaining_amount - inputAmount;
       digitalBahiChangeHandle(staffMemeber.remaining_amount - inputAmount)
       setInputAmount(0);
-      updateReceiptNo().then((resp)=>{
+      updateReceiptNo(adminId).then((resp)=>{
         setReceiptNo(resp);
       })
     }

@@ -3,7 +3,7 @@ import { bgcolor2 } from "../Home/custom.js";
 import ConfirmationDialog from './ConfirmationDialog.jsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import { feeSet, updateFees, getStudent, getFeeDetails, UpdateStuFee} from '../../controllers/loginRoutes.js';
+import { feeSet, updateFees, getStudent, getFeeDetails, UpdateStuFee, saveReceipt, updateReceiptNo} from '../../controllers/loginRoutes.js';
 import Receipt from './Receipt';
 import { useReactToPrint } from 'react-to-print';
 
@@ -11,7 +11,8 @@ import { useReactToPrint } from 'react-to-print';
 // currFee -> Fee amount, deadlines for each quarter, other details for a current session and class
 // quarterIcons -> each quarter fee paid or not (true/false) [1 based indexing]
 // quarterDeadlines -> quarter's deadlines [1 based indexing]
-const Fees = ({adminId}) => {
+const Fees = ({adminId, schoolName}) => {
+  const receiptRef = useRef();
   const [paymentMsg, setpaymentMsg]= useState('');
   const [payOther, setPayOther] = useState(false); //state for other(transportation fee) pay btn 
   const [quarterSelectIndex, setQuarterSelectIndex] = useState();
@@ -61,6 +62,8 @@ const Fees = ({adminId}) => {
   });
 
   const [lateFeeInput, setLateFeeInput] = useState(0);
+  const [receiptData, setReceiptData]= useState();
+  const [feeSetSuccess, setFeeSetSuccess]= useState(false);
 
   useEffect(() => {
     const formattedDate = new Date().toLocaleDateString();
@@ -136,7 +139,7 @@ const Fees = ({adminId}) => {
     }));
   };
 
-  const receiptRef = useRef();
+  
   const [showReceipt, setShowReceipt] = useState(false);
   const initialData = [
     { class: 'Pre-Nursery', 'Admission Fees': "5000", 'Academic Fees': "10000", 'Late Fees': "100", 'Date 1': new Date(), 'Date 2': new Date(), 'Date 3': new Date() , 'Date 4': new Date(), 'Late Fees after X days': "2"},
@@ -159,16 +162,6 @@ const Fees = ({adminId}) => {
   const [FeeSelectedItem, SetFeeSelectedItem] = useState('');
   const [showFeeConfirmation, setShowFeeConfirmation] = useState(false);
   const [noteFee, setNoteFee] = useState(0);
-  const [feeData, setFeeData] = useState({
-      pandingFee: '',
-      pandingFee: '',
-      admissionFee: '',
-      annualFee: '',
-      transportationFee: '',
-      lateFee: '',
-      underBy: adminId
-  });
-  // console.log(quarterIcons);
   const [selectedSession, setSelectedSession] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -255,10 +248,6 @@ const Fees = ({adminId}) => {
     for(let i=0;i<feeSchemaData.length;i++)
     {
       feeSet(feeSchemaData[i],adminId).then((resp)=>{
-        // console.log(resp); 
-        // if(resp.status===201){
-        //   
-        // } 
       })
     }
     alert(`Fee for session ${selectedSession} set successfully`);
@@ -273,8 +262,6 @@ const Fees = ({adminId}) => {
     setShowFeeConfirmation(false);
   };
 
-  const loadinghandler = (()=>{setLoading(!loading)})
-
   const backhandler = (()=> {
     setSuccess(false);
     SetFeeSelectedItem("");
@@ -282,54 +269,16 @@ const Fees = ({adminId}) => {
 
 // receipt part
   const [paymentAmount, setPaymentAmount] = useState(0);
-  const [remainingFees, setRemainingFee] = useState(0);
   
   const handleInputChange = (event) => {
     const { name, value} = event.target;
-    // console.log(name);
-    // console.log(value);
-    // const inputValue = type === 'checkbox' ? checked : value;
     setFormData({ ...formData, [name]: value });
   };
-
-  const calculateTotalFee = () => {
-    const {pandingFee, admissionFee, annualFee, transportationFee, lateFee } = formData;
-    return pandingFee + admissionFee + annualFee + transportationFee + lateFee;
-  };
-
-  const totalFee = calculateTotalFee();
-  let totalPaid = formData.admissionFeePaid ? formData.admissionFee : 0;
-  const remainingFee = totalFee - totalPaid;
 
   const printReceipt = useReactToPrint({
     content: () => receiptRef.current,
   });
 
-  const createManualReceipt = () => {
-    alert('Manual Receipt Created!');
-  };
-
-   const setDeadlines = (date) => {
-    let sessionStartDate = date;
-    const updatedQuarterDeadlines = [...quarterDeadlines];
-    updatedQuarterDeadlines[1] = new Date(sessionStartDate);
-    updatedQuarterDeadlines[1].setMonth(updatedQuarterDeadlines[1].getMonth() + 3);
-    updatedQuarterDeadlines[1].setDate(updatedQuarterDeadlines[1].getDate() - 1);
-
-    updatedQuarterDeadlines[2] = new Date(sessionStartDate);
-    updatedQuarterDeadlines[2].setMonth(updatedQuarterDeadlines[2].getMonth() + 6);
-    updatedQuarterDeadlines[2].setDate(updatedQuarterDeadlines[2].getDate() - 1);
-
-    updatedQuarterDeadlines[3] = new Date(sessionStartDate);
-    updatedQuarterDeadlines[3].setMonth(updatedQuarterDeadlines[3].getMonth() + 9);
-    updatedQuarterDeadlines[3].setDate(updatedQuarterDeadlines[3].getDate() - 1);
-
-    updatedQuarterDeadlines[4] = new Date(sessionStartDate);
-    updatedQuarterDeadlines[4].setFullYear(updatedQuarterDeadlines[4].getFullYear() + 1);
-    updatedQuarterDeadlines[4].setDate(updatedQuarterDeadlines[4].getDate() - 1);
-
-    setQuarterDeadlines(updatedQuarterDeadlines);
-  }
 
   const searchReceipt = () => {
     if (formData.session && formData.studentClass && fullName) {
@@ -343,21 +292,6 @@ const Fees = ({adminId}) => {
 
   };
   
-  const payFees = (quarter) => {
-    const curr_deadline = quarterDeadlines[quarter];
-    const curr_date = new Date();
-
-    //ON TIME FEE PAY
-    if(curr_deadline>=curr_date)
-    {
-      console.log("on time")
-    }
-    //LATE FEE ADD
-    else
-    {
-      console.log("late fee")
-    }
-  }
 
   const handlePaymentAmountChange = (e) => {
     const amount = parseFloat(e.target.value);
@@ -370,9 +304,42 @@ const Fees = ({adminId}) => {
 
   // Function to process the payment and update the fees
   const handlePayment = (quaterNo) => {
-    const isConfirm = window.confirm("Are You Sure Want to Pay");
+    const isConfirm = window.confirm(`Are You Sure Want to Pay ${paymentAmount}`);
     if(isConfirm){
       const quater = "Quater"+quaterNo;
+      
+
+      const receipt_data = {
+        underBy: adminId,
+        schoolName: schoolName ,
+        receiptNo: 0,
+        session: stuSelected.session,
+        studentId: stuSelected._id,
+        studentClass: stuSelected.class,
+        studentSection: stuSelected.section,
+        studentRollNo: stuSelected.rollno,
+        studentName: stuSelected.name,
+        studentFatherName: stuSelected.father_name,
+        quater: quater,
+        total_acdm_fee: currFee.academic_fee/4,
+        acdm_fee:stuSelected.feePayments[quater].acdm_fee,
+        late_fee:lateFeeInput,
+        totalToBePaid: stuSelected.feePayments[quater].acdm_fee + lateFeeInput,
+        paymentAmount: paymentAmount,
+        remainingAmount: stuSelected.feePayments[quater].acdm_fee + lateFeeInput-paymentAmount
+      }
+
+      if(stuSelected.feePayments[quater].adm_fee){
+        receipt_data.total_adm_fee = currFee.adm_fee;
+        receipt_data.adm_fee=stuSelected.feePayments[quater].adm_fee;
+
+        const t= receipt_data.totalToBePaid;
+        receipt_data.totalToBePaid = t+ stuSelected.feePayments[quater].adm_fee;
+
+        const temp = receipt_data.remainingAmount;
+        receipt_data.remainingAmount = temp + stuSelected.feePayments[quater].adm_fee;
+      }
+
       const updatedFeeData = {
         adm_fee:stuSelected.feePayments[quater].adm_fee, 
         acdm_fee:stuSelected.feePayments[quater].acdm_fee,
@@ -433,6 +400,16 @@ const Fees = ({adminId}) => {
           setLateFeeInput(resp.student.feePayments[quater].late_fee);
         }
         setPaymentAmount(0);
+
+        updateReceiptNo(adminId).then((res)=>{
+          receipt_data.receiptNo= res;
+          // console.log("updateReceiptNo",res)
+          setReceiptData(receipt_data);
+          saveReceipt(receipt_data).then((r)=>{
+            // console.log("respsaveReceipt",r);
+          });
+        })
+
       });
     }
   };
@@ -618,6 +595,10 @@ const Fees = ({adminId}) => {
                     onClick={formSubmit}
                     disabled={!selectedSession}
                     type="submit" >{FeeSelectedItem==="setfees" ? 'Apply Settings': FeeSelectedItem==="editfees"? 'Update': ''}</button>
+                </div>
+
+                <div className='mt-2 mb-2'>
+                  <Alert severity="success">{feeSetSuccess}</Alert>
                 </div>
               </div>
             </>
@@ -885,12 +866,12 @@ const Fees = ({adminId}) => {
 
                         
                         <div className="flex justify-end mt-4">
-                          <button
+                          <a
                             onClick={printReceipt}
-                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mb-2"
                           >
                             Print Receipt
-                          </button>
+                          </a>
 
                           {/* <button
                             onClick={createManualReceipt}
@@ -899,7 +880,9 @@ const Fees = ({adminId}) => {
                             Create Manual Receipt
                           </button> */}
                         </div>
-                        <Receipt receiptData={formData} refer={receiptRef} />
+                        {receiptData && (
+                          <Receipt receiptData={receiptData} ref={receiptRef} />
+                        )}
                         </div>
                       ) :(
                         <div>
