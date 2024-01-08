@@ -830,4 +830,69 @@ export const saveReceipt = async (obj) => {
     return ans;
 };
 
+export const feeSetValidation = async (type, obj,adminId,session) => {
+    const res = await fetch(`${base}/feeSetValidation/${type}/${adminId}/${session}`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};
 
+export const allFeeReq = async (adminId)=> {
+    const res = await fetch(`${base}/allFeeReq/${adminId}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const getFeeApprovalReq = async ()=> {
+    const res = await fetch(`${base}/feeApproval`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const getFeeUnlockReq = async ()=> {
+    const res = await fetch(`${base}/feeApproval`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const feeApproved = async (feeReq_id)=> {
+    const res = await fetch(`${base}/feeApproved/${feeReq_id}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}
+
+export const feeDeclined = async (feeReq_id)=> {
+    const res = await fetch(`${base}/feeDeclined/${feeReq_id}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+}

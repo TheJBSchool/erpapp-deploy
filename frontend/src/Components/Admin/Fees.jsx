@@ -3,7 +3,7 @@ import { bgcolor2 } from "../Home/custom.js";
 import ConfirmationDialog from './ConfirmationDialog.jsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import { feeSet, updateFees, getStudent, getFeeDetails, UpdateStuFee, saveReceipt, updateReceiptNo} from '../../controllers/loginRoutes.js';
+import { feeSet, updateFees, getStudent, getFeeDetails, UpdateStuFee, saveReceipt, updateReceiptNo, feeSetValidation, allFeeReq} from '../../controllers/loginRoutes.js';
 import Receipt from './Receipt';
 import { useReactToPrint } from 'react-to-print';
 
@@ -64,6 +64,14 @@ const Fees = ({adminId, schoolName}) => {
   const [lateFeeInput, setLateFeeInput] = useState(0);
   const [receiptData, setReceiptData]= useState();
   const [feeSetSuccess, setFeeSetSuccess]= useState(false);
+  const [allFeeRequest, seAllFeeRequest]= useState([]);
+
+  useEffect(()=>{
+    allFeeReq(adminId).then((resp)=>{
+      // console.log("allFeeReq",resp)
+      seAllFeeRequest(resp);
+    })
+  },[])
 
   useEffect(() => {
     const formattedDate = new Date().toLocaleDateString();
@@ -168,6 +176,7 @@ const Fees = ({adminId, schoolName}) => {
 
   const [tableData, setTableData] = useState(initialData);
   const [feeSchemaData, setFeeSchemaData]= useState(); // have atleast one value in table then it will not show error
+  const [feeSetStatus, setFeeSetStatus]= useState();
   
   const columns = [
     'Pre-Nursery', 'Nursery', 'LKG', 'UKG',
@@ -245,12 +254,25 @@ const Fees = ({adminId, schoolName}) => {
       return;
     }
     setNoteFee(0);
-    for(let i=0;i<feeSchemaData.length;i++)
-    {
-      feeSet(feeSchemaData[i],adminId).then((resp)=>{
-      })
-    }
-    alert(`Fee for session ${selectedSession} set successfully`);
+    // for(let i=0;i<feeSchemaData.length;i++)
+    // {
+    //   feeSet(feeSchemaData[i],adminId).then((resp)=>{
+    //   })
+    // }
+    feeSetValidation("feeSet",feeSchemaData,adminId, selectedSession).then((resp)=>{
+      // console.log("feeSetValidation",resp)
+      if(resp.msg==="success"){
+        alert(`Fee for session ${selectedSession} sent for Approval`);
+        setTableData(initialData);
+        setFeeSetSuccess(true);
+        setInterval(()=>{
+          setFeeSetSuccess(false);
+        },5000)
+      }
+      else{
+        alert(`Something went wrong. Unable to send Request`);
+      }
+    })
   };
 
   const formSubmit = () =>{
@@ -481,7 +503,7 @@ const Fees = ({adminId, schoolName}) => {
 
           <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => SetFeeSelectedItem('editfees')}>
             <img className="h-14 w-14 mb-4" alt="Timetable" src={require('../../img/editfees.png')} />
-            <p className="font-bold text-sm">Edit Fees's</p>
+            <p className="font-bold text-sm">Fees's Status</p>
           </div>
 
           <div className={`border-2 border-red-400 flex flex-col justify-center items-center p-4 rounded-lg hover:bg-red-200 hover:cursor-pointer`} onClick={() => SetFeeSelectedItem('feereceipt')}>
@@ -493,7 +515,7 @@ const Fees = ({adminId, schoolName}) => {
       )}
 
 
-      {(FeeSelectedItem === "setfees" || FeeSelectedItem === "editfees" )  && (
+      {(FeeSelectedItem === "setfees" )  && (
       <div className='main'>
         <div style={bgcolor2} className="border-2 mt-5 border-red-300 rounded-lg p-9 ">
           <div className='flex '>
@@ -597,14 +619,92 @@ const Fees = ({adminId, schoolName}) => {
                     type="submit" >{FeeSelectedItem==="setfees" ? 'Apply Settings': FeeSelectedItem==="editfees"? 'Update': ''}</button>
                 </div>
 
-                <div className='mt-2 mb-2'>
-                  <Alert severity="success">{feeSetSuccess}</Alert>
-                </div>
+                {feeSetSuccess && (
+                  <div className='mt-2 mb-2'>
+                    <Alert severity="success">Fee Set Approval sent to Super Admin</Alert>
+                  </div>
+                )}
               </div>
             </>
-            )};
+            )}
         </div>
       </div>
+      )}
+      {FeeSelectedItem === "editfees" && (
+        <div style={bgcolor2} className="border-2 mt-5 border-red-300 rounded-lg p-9 ">
+          <div className='flex '>
+            <img className="h-8 w-8 mb-4 mr-2" alt="Timetable" src={require('../../img/setfees.png')} />
+            <h1 className="font-bold mb-8">Fee's Status</h1>
+          </div>
+          <div className='shadow-md'>
+            {allFeeRequest.length>0 && allFeeRequest.map((item,ind)=>{
+              return <div key={ind} className=' bg-slate-100 border-2 rounded-lg m-2 p-4  grid grid-cols-4 '>
+                
+                <p className='font-bold'>Session : <strong className='ml-2 text-zinc-600'>{item.session} </strong></p>
+                <p className='font-bold col-span-2'>Date Created : <strong className='ml-2 text-zinc-600'>{new Date(item.date_created).toLocaleDateString('en-GB')} </strong></p>
+                <p className='font-bold'>Status : <strong className={`ml-2 font-bold ${item.status==="Approved"? "text-green-600" : item.status==="Declined"?"text-red-600":"text-yellow-500" }`}>{item.status} </strong></p>
+                
+                  <div className='col-span-4'> 
+
+                    <div className=' overflow-x-auto'>
+                      <table className="border-collapse border border-gray-600 w-full mt-4">
+                        <thead>
+                          <tr className="bg-gray-200">
+                            <th className="border border-gray-600 px-4 py-2">Session</th>
+                            {item.data.map((fee, index) => (
+                              <th key={index} className="border border-gray-600 px-4 py-2">{fee.class}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          
+                          <tr>
+                            <td className="border border-gray-600 px-4 py-2">Admission Fee</td>
+                            {item.data.map((fee, index) => (
+                              <td key={index} className="border border-gray-600 px-4 py-2">{fee.adm_fee}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-600 px-4 py-2">Academic Fee</td>
+                            {item.data.map((fee, index) => (
+                              <td key={index} className="border border-gray-600 px-4 py-2">{fee.academic_fee}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-600 px-4 py-2">Late Fee</td>
+                            {item.data.map((fee, index) => (
+                              <td key={index} className="border border-gray-600 px-4 py-2">{fee.late_fee}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-600 px-4 py-2">Late Fee <span className='text-[12px]'>(applied After x Days)</span></td>
+                            {item.data.map((fee, index) => (
+                              <td key={index} className="border border-gray-600 px-4 py-2">{fee.late_fee_x}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-600 px-4 py-2">Dates</td>
+                            {item.data.map((fee, index) => (
+                              <td key={index} className="border border-gray-600 px-4 py-2">
+                                <ul className="list-disc list-inside text-[15px]">
+                                  <li className='flex'>{new Date(fee.date1).toLocaleDateString('en-GB')}</li>
+                                  <li className='flex'>{new Date(fee.date2).toLocaleDateString('en-GB')}</li>
+                                  <li className='flex'>{new Date(fee.date3).toLocaleDateString('en-GB')}</li>
+                                  <li className='flex'>{new Date(fee.date4).toLocaleDateString('en-GB')}</li>
+                                  {/* Add more dates if available */}
+                                </ul>
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+              </div>
+            })}
+          </div>
+        </div>
       )}
       {FeeSelectedItem === "feereceipt" && (
         <div style={bgcolor2} className="border-2 mt-5 border-red-300 rounded-lg p-9 ">

@@ -19,6 +19,7 @@ const ExamType = require('../src/models/examTypes');
 const Result = require('../src/models/result');
 const ResultReq = require('../src/models/resultReq');
 const FeeReceipt = require('../src/models/feeReceipt');
+const FeeReq = require('../src/models/feeReq');
 const path = require('path');
 const nodemailer = require("nodemailer");
 
@@ -1113,6 +1114,68 @@ router.get('/saveReceipt/:sid', async (req, res) => {
   try {
       const new_receipt= await FeeReceipt.find({studentId:studentId});
       return res.status(201).json(new_receipt);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+
+router.post('/feeSetValidation/:type/:adminId/:session', async (req, res) => {
+  const {type,adminId,session}= req.params;
+  try {
+      const new_req= new FeeReq({type,adminId,session, data:req.body }); //can change to findOneAndUpdate
+      const resp = await new_req.save();
+      return res.status(201).json({"msg": "success" ,resp});
+  } catch (e) {
+      return res.json({ "msg": e.message });
+  }
+});
+
+router.get('/allFeeReq/:adminId', async (req, res) => {
+  const adminId= req.params.adminId;
+  try {
+      const resp= await FeeReq.find({type:"feeSet", adminId});
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+router.get('/feeApproval', async (req, res) => {
+  try {
+      const resp= await FeeReq.find({type:"feeSet", status:"Sent" });
+      return res.status(201).json(resp);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+router.patch('/feeApproved/:id', async (req, res) => {
+  const id= req.params.id;
+  try {
+      const resp= await FeeReq.findOneAndUpdate({_id:id}, {status:"Approved" }, {new:true});
+      const result= await FeeReq.find({type:"feeSet", status:"Sent" });
+      return res.status(201).json(result);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+router.patch('/feeDeclined/:id', async (req, res) => {
+  const id= req.params.id;
+  try {
+      const resp= await FeeReq.findOneAndUpdate({_id:id}, {status:"Declined"},{new:true});
+      const result= await FeeReq.find({type:"feeSet", status:"Sent" });
+      return res.status(201).json(result);
+  } catch (e) {
+      return res.json({ "error": e.message });
+  }
+});
+
+router.get('/feeUnlock', async (req, res) => {
+  try {
+      const result= await FeeReq.find({type:"feeUnlock"});
+      return res.status(201).json(result);
   } catch (e) {
       return res.json({ "error": e.message });
   }

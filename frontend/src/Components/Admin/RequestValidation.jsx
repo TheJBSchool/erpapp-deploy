@@ -150,7 +150,7 @@ const ResquestValidation = ({adminId}) => {
               </label>
             </div>
           </div>
-      </div>
+        </div>
       {selectedOption === 'result' && (
         <div>
           {resultRequests.length>0 && resultRequests.map((item,ind)=>{
