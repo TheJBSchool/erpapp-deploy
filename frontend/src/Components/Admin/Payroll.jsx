@@ -7,6 +7,8 @@ import DigitalBahi from './DigitalBahi.jsx';
 import {registerStaff, getStaff, updatePayroll} from '../../controllers/loginRoutes.js';
 
 const Payroll = ({adminId, schoolName}) => {
+  const months = ['January', 'February', 'March', 'April', 'June', 'July', 'Augest', 'September', 'October', 'November', 'December'];
+
   const [exitStaffData, setExistStaffData] = useState([]); // existing staff-> table data store in it
   const [notValidTable, setNotValidTable] = useState(-1);
   const { isLoading, toggleLoading } = useContext(LoadingContext);
@@ -32,6 +34,7 @@ const Payroll = ({adminId, schoolName}) => {
   });
 
   const [digtalBahiIndex, setDigitalBahiIndex] = useState();
+  const [onUpdateStaff, setOnUpdateStaff]= useState()
 
   useEffect(() => {
     if (payrollDropdown.session && payrollDropdown.month && exitStaffData.length > 0) {
@@ -41,8 +44,25 @@ const Payroll = ({adminId, schoolName}) => {
           (session) => session.session_name === payrollDropdown.session
         );
 
+        //need to calculate the previous month remaining leaves is now current month's available leaves which is ReadOnly
+        let monthIndex = months.findIndex((month,ind)=>month=== payrollDropdown.month)
+        monthIndex--;
+
+        // console.log("monthInd",monthIndex);
+        let prevMonthRemainingLeaves= 0;
+        if(monthIndex>=0){
+          let prevMonth = months[monthIndex];
+          if(sessionFound.months[prevMonth]){
+            const selectedPrevMonth = sessionFound.months[prevMonth];
+            prevMonthRemainingLeaves = selectedPrevMonth.remaining_leaves
+          }
+        }
+
+        // console.log("prevMonthRemainingLeaves",prevMonthRemainingLeaves);
+
         if (sessionFound && sessionFound.months[payrollDropdown.month]) {
           const selectedMonth = sessionFound.months[payrollDropdown.month];
+
 
           // Update prData state based on the selected month's data
           const staffData= {
@@ -52,7 +72,7 @@ const Payroll = ({adminId, schoolName}) => {
             absent: selectedMonth.absent,
             half_days: selectedMonth.half_days,
             paid_leaves: selectedMonth.paid_leaves,
-            available_leaves: selectedMonth.available_leaves,
+            available_leaves: prevMonthRemainingLeaves,
             remaining_leaves: selectedMonth.remaining_leaves,
             total_salary: staff.total_salary,
             deducted_salary: selectedMonth.deducted_salary,
@@ -68,7 +88,7 @@ const Payroll = ({adminId, schoolName}) => {
             absent: 0,
             half_days: 0,
             paid_leaves: 0,
-            available_leaves: 0,
+            available_leaves: prevMonthRemainingLeaves,
             remaining_leaves: 0,
             total_salary: staff.total_salary,
             deducted_salary: 0,
@@ -88,7 +108,7 @@ const Payroll = ({adminId, schoolName}) => {
         setExistStaffData(resp);
       }
     })
-  }, []);
+  }, [onUpdateStaff]);
 
   useEffect(() => {
     if(prData){
@@ -100,7 +120,6 @@ const Payroll = ({adminId, schoolName}) => {
   // console.log("prData",prData);
 
 
-  const months = ['January', 'February', 'March', 'April', 'June', 'July', 'Augest', 'September', 'October', 'November', 'December'];
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setPayrollDropdown((prevData) => ({
@@ -246,6 +265,7 @@ const Payroll = ({adminId, schoolName}) => {
           toggleLoading(false);
           setSuccess(true);
           alert('Successfully saved');
+          setOnUpdateStaff(resp);
         })
         setTimeout(()=>{
           setSuccess(false);
@@ -377,11 +397,12 @@ const Payroll = ({adminId, schoolName}) => {
                           <td className="text-center border border-black bg-slate-200">{index+1}</td>
                           <td className="text-center border border-black bg-yellow-50">
                             <input
+                              readOnly
                               type="text"
                               name="fullName"
                               value={exitStaffData[index]?.fullName }
                               className="px-2 w-full bg-yellow-50"
-                              onChange={(e) => tableDataChangeHandle(e, index)}
+                              // onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
                           <td className="text-center border border-black">
@@ -437,14 +458,15 @@ const Payroll = ({adminId, schoolName}) => {
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
-                          <td className="text-center border border-black">
+                          <td className="text-center border border-black bg-yellow-50">
                             <input
+                              readOnly
                               type="number"
                               name="available_leaves"
                               value={prData[index]?.available_leaves }
                               min="0"
-                              className="w-full px-2"
-                              onChange={(e) => tableDataChangeHandle(e, index)}
+                              className="w-full px-2 bg-yellow-50"
+                              // onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
                           <td className="text-center border border-black bg-yellow-50">
@@ -455,7 +477,7 @@ const Payroll = ({adminId, schoolName}) => {
                               min="0"
                               value={prData[index]?.remaining_leaves}
                               className="w-full px-2 bg-yellow-50"
-                              onChange={(e) => tableDataChangeHandle(e, index)}
+                              // onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
                           <td className="text-center border border-black bg-yellow-50">
@@ -466,7 +488,7 @@ const Payroll = ({adminId, schoolName}) => {
                               min="0"
                               className="w-full px-2 bg-yellow-50"
                               readOnly
-                              onChange={(e) => tableDataChangeHandle(e, index)}
+                              // onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
                           <td className="text-center border border-black bg-yellow-50">
@@ -477,7 +499,7 @@ const Payroll = ({adminId, schoolName}) => {
                               min="0"
                               className="w-full px-2 bg-yellow-50"
                               readOnly
-                              onChange={(e) => tableDataChangeHandle(e, index)}
+                              // onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
 
