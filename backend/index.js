@@ -5,10 +5,10 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 4000;
 const cors=require("cors");
-// app.use(cors());
+
+const ORIGINSITE = process.env.ORIGINSITE || '*';
 const corsOptions ={
-//    origin:'https://erp.thejbschool.com'
-   origin:'*'
+   origin:ORIGINSITE
 }
 
 app.use(cors(corsOptions)) 
