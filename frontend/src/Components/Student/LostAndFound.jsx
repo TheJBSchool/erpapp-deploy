@@ -15,7 +15,7 @@ const LostAndFound = ({studentData}) => {
 
   useEffect(() => {
     fetchRecentItems(studentData.underBy).then((resp) => {
-      console.log("fetchhh",resp)
+      // console.log("fetchhh",resp)
       setRecentItems(resp);
 
       if(resp){
@@ -31,7 +31,7 @@ const LostAndFound = ({studentData}) => {
     });
   }, []);
 
-  console.log("stuClaimingItem",stuClaimingItem)
+  // console.log("stuClaimingItem",stuClaimingItem)
 
   const showClaimModal = (item) => {
     setIsModalOpen(true);
