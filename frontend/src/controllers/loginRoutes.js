@@ -896,3 +896,27 @@ export const feeDeclined = async (feeReq_id)=> {
     const ans = await res.json();
     return ans;
 }
+
+export const updatePayroll = async (session,month,obj) => {
+    const res = await fetch(`${base}/updatePayroll/${session}/${month}`, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};
+
+export const paySalary = async (obj) => {
+    const res = await fetch(`${base}/paySalary`, {
+        method: 'PATCH',
+        body: JSON.stringify(obj),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    const ans = await res.json();
+    return ans;
+};

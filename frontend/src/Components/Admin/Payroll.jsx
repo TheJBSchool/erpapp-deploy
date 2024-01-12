@@ -4,11 +4,11 @@ import StaffForm from './StaffForm.jsx';
 import Alert from '@mui/material/Alert';
 import { LoadingContext } from '../../App.js';
 import DigitalBahi from './DigitalBahi.jsx';
-import {registerStaff, getStaff} from '../../controllers/loginRoutes.js';
+import {registerStaff, getStaff, updatePayroll} from '../../controllers/loginRoutes.js';
 
-const Payroll = ({adminId}) => {
+const Payroll = ({adminId, schoolName}) => {
   const [exitStaffData, setExistStaffData] = useState([]); // existing staff-> table data store in it
-  const [notValidTable, setNotValidTable] = useState(0);
+  const [notValidTable, setNotValidTable] = useState(-1);
   const { isLoading, toggleLoading } = useContext(LoadingContext);
   const [success, setSuccess] = useState(false);
   const [payrollData, setPayrollData]= useState({ // for new entry and edit staff purpose
@@ -46,6 +46,7 @@ const Payroll = ({adminId}) => {
 
           // Update prData state based on the selected month's data
           const staffData= {
+            staffId: staff._id,
             total_working_days: selectedMonth.total_working_days,
             present: selectedMonth.present,
             absent: selectedMonth.absent,
@@ -53,7 +54,7 @@ const Payroll = ({adminId}) => {
             paid_leaves: selectedMonth.paid_leaves,
             available_leaves: selectedMonth.available_leaves,
             remaining_leaves: selectedMonth.remaining_leaves,
-            total_salary: selectedMonth.total_salary,
+            total_salary: staff.total_salary,
             deducted_salary: selectedMonth.deducted_salary,
             remaining_amount: selectedMonth.remaining_amount,
           };
@@ -61,6 +62,7 @@ const Payroll = ({adminId}) => {
         } 
         else{
           const staffData = {
+            staffId: staff._id,
             total_working_days: 0,
             present: 0,
             absent: 0,
@@ -81,12 +83,21 @@ const Payroll = ({adminId}) => {
 
   useEffect(() => {
     getStaff(adminId).then((resp)=>{
-      console.log("staffs",resp);
-      setExistStaffData(resp);
+      // console.log("staffs",resp);
+      if(resp){
+        setExistStaffData(resp);
+      }
     })
   }, []);
 
-  console.log("prData",prData);
+  useEffect(() => {
+    if(prData){
+      setNotValidTable(isTableValid(prData));
+    }
+  }, [prData]);
+
+
+  // console.log("prData",prData);
 
 
   const months = ['January', 'February', 'March', 'April', 'June', 'July', 'Augest', 'September', 'October', 'November', 'December'];
@@ -159,18 +170,15 @@ const Payroll = ({adminId}) => {
   // exist staff table
  const tableDataChangeHandle = (e, index) => {
     const { name, value } = e.target;
-    const updatedExitStaffData = [...exitStaffData];
+    const intValue = parseInt(value);
+    const updatedExitStaffData = [...prData];
 
     updatedExitStaffData[index] = {
       ...updatedExitStaffData[index],
-      [payrollDropdown.session]: {
-        ...updatedExitStaffData[index][payrollDropdown.session],
-        [payrollDropdown.month]: {
-          ...updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month],
-          [name]: name === 'fullName' ? value : parseFloat(value) || 0,
-        },
-      },
+      [name]: intValue
     };
+
+    setPrData(updatedExitStaffData)
     
 
     // Validate salary when there's a change in any cell
@@ -179,44 +187,72 @@ const Payroll = ({adminId}) => {
   };
 
   const validateAndUpdateTable = (index, updatedExitStaffData) => {
-    const staffMember = updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month];
+    // console.log("updatedExitStaffData",updatedExitStaffData)
+    const staffMember = updatedExitStaffData[index];
 
-    // Calculate remaining leaves based on attendance
-    const tempRemainingLeaves = staffMember.available_leaves - (staffMember.absent + 0.5 * staffMember.half_days);
-    staffMember.remaining_leaves = Math.max(0, tempRemainingLeaves);
+    if(staffMember.present + staffMember.absent + staffMember.half_days === staffMember.total_working_days){
 
-    // Calculate deducted salary based on remaining leaves
-    if (staffMember.remaining_leaves <= 0) {
-      staffMember.deducted_salary = staffMember.total_salary + (staffMember.remaining_leaves * (staffMember.total_salary / staffMember.total_working_days));
-    } else {
-      staffMember.deducted_salary = 0; // Reset deducted salary if leaves are available
+      //caluculating available leaves
+      let leaves_cutoff= staffMember.absent + (0.5* staffMember.half_days);
+      let remainingLeaves= staffMember.paid_leaves + staffMember.available_leaves  - leaves_cutoff;
+      // console.log("avvv",remainingLeaves)
+      remainingLeaves = Math.max(0,remainingLeaves);
+      staffMember.remaining_leaves= remainingLeaves;
+
+      let deductedSalary= staffMember.total_salary;
+
+      const perDaySalary= staffMember.total_salary/staffMember.total_working_days;
+      const totalLeaves= staffMember.paid_leaves +  staffMember.available_leaves;
+      const diff= totalLeaves- staffMember.absent - (staffMember.half_days*0.5);
+
+      // console.log("diff",diff)
+      if(diff<0){
+        deductedSalary-= Math.abs(diff) * perDaySalary;
+      }
+      // console.log("deductedSalary",deductedSalary)
+      if(deductedSalary){
+        staffMember.deducted_salary = deductedSalary; // Reset deducted salary if leaves are available
+        staffMember.remaining_amount= deductedSalary.toFixed(2);
+      }
+
+      // Update the staff member's data
+      updatedExitStaffData[index] = staffMember;
+
+      setPrData(updatedExitStaffData);
     }
-
-    // Update the staff member's data
-    updatedExitStaffData[index][payrollDropdown.session][payrollDropdown.month] = staffMember;
-
-    // Set the updated data back to state
-    setExistStaffData(updatedExitStaffData);
   };
 
-  const isTableValid = (index, data) => {
-    for (const staff of data) {
-      if (staff.present + staff.absent + staff.half_days !== staff.total_working_days) {
-        return index+1;
+  const isTableValid = (data) => {
+    for (let i=0; i<data.length; i++) {
+      // console.log("stafff",staff)
+      if (data[i].present + data[i].absent + data[i].half_days != data[i].total_working_days) {
+        return i;
       }
     }
-    return 0;
+    return -1;
   };
 
   const tableSubmit = ()=>{
-    toggleLoading(true);
-    setTimeout(()=>{
-      toggleLoading(false);
-      setSuccess(true);
-    },3000);
-    setTimeout(()=>{
-      setSuccess(false);
-    },50000)
+    let validIndex = isTableValid(prData);
+    // console.log("validIndex",validIndex);
+    if(validIndex==-1 && payrollDropdown.session &&  payrollDropdown.month){
+      // console.log("saving this prData",prData);
+
+      const isConfirm = window.confirm("Are sure want to update Payroll Data each Staff mentioned in the table.");
+      if(isConfirm){
+        toggleLoading(true);
+        updatePayroll(payrollDropdown.session, payrollDropdown.month, prData).then((resp)=>{
+          // console.log("updatePayroll",resp);
+          toggleLoading(false);
+          setSuccess(true);
+          alert('Successfully saved');
+        })
+        setTimeout(()=>{
+          setSuccess(false);
+        },5000)
+
+      }
+    }
   }
   const handleEditButton = (index)=>{
     // payroll data me partcular staff memeber insert krna h
@@ -242,12 +278,7 @@ const Payroll = ({adminId}) => {
     };
     setExistStaffData(updatedExitStaffData);
   };
-  const DigitalBahiHandleSubmit = ()=>{  //call on input of DigitalBahi.jsx component
-    setPayrollDropdown((prevData) => ({ 
-      ...prevData,
-      ['staffpayroll']: "",
-    }));
-  }
+
   return (
     <div style={bgcolor2} className="border-2  border-red-300 rounded-lg p-10 h-full">
       {/* header */}
@@ -264,7 +295,7 @@ const Payroll = ({adminId}) => {
             </div>
           )}
           {payrollDropdown.staffpayroll=== "Digital Bahi" && (
-            <DigitalBahi adminId={adminId} staffMemeber={exitStaffData[digtalBahiIndex]} digitalBahiChangeHandle={digitalBahiChangeHandle} DigitalBahiHandleSubmit={DigitalBahiHandleSubmit}/>
+            <DigitalBahi adminId={adminId} schoolName={schoolName} session= {payrollDropdown.session } month={payrollDropdown.month} staffMemeber={exitStaffData[digtalBahiIndex]} prData={prData[digtalBahiIndex]} digitalBahiChangeHandle={digitalBahiChangeHandle}/>
           )}
 
           {(payrollDropdown.staffpayroll === "New Staff Entry" || payrollDropdown.staffpayroll === "Edit Staff") && ( 
@@ -322,18 +353,19 @@ const Payroll = ({adminId}) => {
                 </div>
               </dir>
               {payrollDropdown.staffpayroll === "Exist Staff" && payrollDropdown.session && payrollDropdown.month &&  (
-                <div className='border-2 border-red-200 rounded p-4 bg-white flex flex-col'>
+                <div className='border-2 border-red-200 rounded p-4 bg-white overflow-auto'>
                   <table className="w-full px-2">
                     <thead className='bg-slate-300'>
                       <tr>
+                        <th className="text-center border-[1px] border-black px-2">S.No.</th>
                         <th className="text-center border-[1px] border-black px-2">Name</th>
                         <th className="text-center border-[1px] border-black px-2">Total Working Days</th>
                         <th className="text-center border-[1px] border-black px-2">Present</th>
                         <th className="text-center border-[1px] border-black px-2">Absent</th>
                         <th className="text-center border-[1px] border-black px-2">Half Days</th>
-                        <th className="text-center border-[1px] border-black px-2">Paid Leaves <p className='text-[10px]'>(per month)</p></th>
-                        <th className="text-center border-[1px] border-black px-2">Available Leaves</th>
-                        <th className="text-center border-[1px] border-black px-2">Remaining Leaves</th>
+                        <th className="text-center border-[1px] border-black px-2">Paid Leaves <p className='text-[10px]'>(this month)</p></th>
+                        <th className="text-center border-[1px] border-black px-2">Available Leaves  <p className='text-[10px]'>(of prev month)</p></th>
+                        <th className="text-center border-[1px] border-black px-2">Remaining Leaves  <p className='text-[10px]'>(of this month)</p></th>
                         <th className="text-center border-[1px] border-black px-2">Total Salary</th>
                         <th className="text-center border-[1px] border-black px-2">Deducted Salary</th>
                         <th className="text-center border-[1px] border-black px-2">Action</th>
@@ -342,12 +374,13 @@ const Payroll = ({adminId}) => {
                     <tbody>
                       {exitStaffData.map((staff, index) => (
                         <tr key={index}>
-                          <td className="text-center border border-black bg-slate-200">
+                          <td className="text-center border border-black bg-slate-200">{index+1}</td>
+                          <td className="text-center border border-black bg-yellow-50">
                             <input
                               type="text"
                               name="fullName"
                               value={exitStaffData[index]?.fullName }
-                              className="px-2 w-full bg-slate-200"
+                              className="px-2 w-full bg-yellow-50"
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
@@ -368,6 +401,7 @@ const Payroll = ({adminId}) => {
                               name="present"
                               value={prData[index]?.present }
                               min="0"
+                              max="31"
                               className="w-full px-2"
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
@@ -378,6 +412,7 @@ const Payroll = ({adminId}) => {
                               name="absent"
                               value={prData[index]?.absent }
                               min="0"
+                              max="31"
                               className="w-full px-2"
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
@@ -404,7 +439,6 @@ const Payroll = ({adminId}) => {
                           </td>
                           <td className="text-center border border-black">
                             <input
-                              readOnly
                               type="number"
                               name="available_leaves"
                               value={prData[index]?.available_leaves }
@@ -413,35 +447,35 @@ const Payroll = ({adminId}) => {
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
-                          <td className="text-center border border-black">
+                          <td className="text-center border border-black bg-yellow-50">
                             <input
                               readOnly
                               type="number"
                               name="remaining_leaves"
                               min="0"
-                              value={(prData.remaining_leaves || 0) < 0 ? 0 : (prData.remaining_leaves || 0)}
-                              className="w-full px-2"
+                              value={prData[index]?.remaining_leaves}
+                              className="w-full px-2 bg-yellow-50"
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
-                          <td className="text-center border border-black">
+                          <td className="text-center border border-black bg-yellow-50">
                             <input
                               type="number"
                               name="total_salary"
                               value={prData[index]?.total_salary }
                               min="0"
-                              className="w-full px-2"
+                              className="w-full px-2 bg-yellow-50"
                               readOnly
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
                           </td>
-                          <td className="text-center border border-black">
+                          <td className="text-center border border-black bg-yellow-50">
                             <input
                               type="number"
                               name="deducted_salary"
                               value={prData[index]?.deducted_salary }
                               min="0"
-                              className="w-full px-2"
+                              className="w-full px-2 bg-yellow-50"
                               readOnly
                               onChange={(e) => tableDataChangeHandle(e, index)}
                             />
@@ -465,16 +499,16 @@ const Payroll = ({adminId}) => {
                       ))}
                     </tbody>
                   </table>
-                  {notValidTable>0 && <p className='text-red-400 font-sm m-[20px]'>*Error at {notValidTable} Please ensure that 'Present + Absent + Half Days' equals 'Total Working Days' for all staff.</p>}
+                  {notValidTable>-1 && <p className='text-red-400 font-sm m-[20px]'>*Error at {notValidTable+1} Please ensure that 'Present + Absent + Half Days' equals 'Total Working Days' for all staff.</p>}
                   <div className=' grid justify-items-end mt-5'>
                     <button 
                       className="h-10 bg-blue-600 hover:bg-blue-800 text-white font-semibold px-6 rounded-full focus:outline-none" 
                       onClick={tableSubmit}
-                      disabled={notValidTable}
+                      disabled={notValidTable!=-1}
                       type="submit" >Update</button>
                   </div>
                   {success && (
-                  <Alert severity="success" className='mt-4'>Table Data Successfully Updated</Alert>
+                  <Alert severity="success" className='mt-4'>Payroll Data Successfully Updated</Alert>
                   )}
                 </div>
               )}

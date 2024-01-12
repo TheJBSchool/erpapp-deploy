@@ -90,7 +90,7 @@ const staffSchema = new mongoose.Schema({
         required: true,
     },
     total_salary:{
-        type: String,
+        type: Number,
         required: true,
     },
     sessions: [sessionSchema],

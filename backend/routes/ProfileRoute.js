@@ -1180,4 +1180,84 @@ router.get('/feeUnlock', async (req, res) => {
       return res.json({ "error": e.message });
   }
 });
+
+router.post('/updatePayroll/:session/:month', async (req, res) => {
+  const { session, month } = req.params;
+  const payrollData = req.body;
+
+  try {
+    for (let staffData of payrollData) {
+      const { staffId, ...monthlyData } = staffData;
+
+      // Find the staff by ID
+      const staff = await Staff.findById(staffId);
+
+      if (!staff) {
+        return res.status(404).json({ "msg": "Staff not found" });
+      }
+
+      // Find the session by name
+      const existingSessionIndex = staff.sessions.findIndex(s => s.session_name === session);
+
+      if (existingSessionIndex === -1) {
+        // Session not found, create a new session
+        const newSession = {
+          session_name: session,
+          months: new Map([[month, monthlyData]]), // Create a new Map with the month data
+        };
+        console.log("newSession",newSession)
+        staff.sessions.push(newSession);
+      } else {
+        // Find the month in the session
+        const existingMonth = staff.sessions[existingSessionIndex].months.get(month);
+
+        if (!existingMonth) {
+          // Month not found, create a new month
+          staff.sessions[existingSessionIndex].months.set(month, monthlyData);
+        } else {
+          // Update the existing month data with new payroll data
+          for (const key in monthlyData) {
+            existingMonth[key] = monthlyData[key];
+          }
+        }
+      }
+
+      // Save the changes
+      await staff.save();
+    }
+
+    return res.status(201).json({ "msg": "Success" });
+  } catch (e) {
+    return res.status(500).json({ "msg": e.message });
+  }
+});
+
+
+router.patch('/paySalary', async (req, res) => {
+  const {staffId,session,month, inputAmount}= req.body;
+  try {
+    const staff =  await Staff.findById(staffId);
+
+    const existingSessionIndex = staff.sessions.findIndex(s => s.session_name === session);
+    
+    if (!staff) {
+      return res.status(404).json({ "msg": `Staff not found for ${session} session.` });
+    }
+
+    const existingMonth = staff.sessions[existingSessionIndex].months.get(month);
+    if (!existingMonth) {
+      // Month not found
+      return res.status(404).json({ "msg": `Payroll Data not found for ${month} month.` });
+    } else {
+      existingMonth['remaining_amount'] = inputAmount;
+    }
+    await staff.save();
+    return res.status(201).json({ "msg": "Success" });
+
+  } catch (e) {
+    return res.json({ "msg": e.message });
+  }
+});
+
+
 module.exports = router;

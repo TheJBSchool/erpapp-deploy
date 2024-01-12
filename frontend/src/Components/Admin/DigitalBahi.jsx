@@ -1,35 +1,63 @@
-import React, {useState, useEffect} from 'react';
-import {getReceiptNo,updateReceiptNo} from '../../controllers/loginRoutes.js';
+import React, {useState, useEffect, useRef} from 'react';
+import {getReceiptNo,updateReceiptNo, paySalary} from '../../controllers/loginRoutes.js';
+import { useReactToPrint } from 'react-to-print';
+import PayrollReceipt from './PayrollReceipt.jsx';
 
-const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBahiHandleSubmit}) => {
+const DigitalBahi = ({adminId,schoolName, session, month, staffMemeber, prData, digitalBahiChangeHandle}) => {
+  const receiptRef = useRef();
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
   const [receiptNo, setReceiptNo] = useState(0);
   const [currentDate, setCurrentDate] = useState('');
   const [inputAmount, setInputAmount] = useState(0);
-  const [iserror, setIsError] = useState(false)
+  const [iserror, setIsError] = useState(false);
+  const [showReceipt, setShowReceipt]= useState(false);
   useEffect(() => {
-    const formattedDate = new Date().toLocaleDateString();
+    const formattedDate = new Date().toLocaleDateString('en-GB');
     setCurrentDate(formattedDate);
     getReceiptNo(adminId).then((resp) => {
       setReceiptNo(resp);
     })
   },[]);
+
   const handleInputAmount = (e)=>{
-    setInputAmount(e.target.value)
-  }
-  const payhandle= ()=>{
-    if(inputAmount > 0 && inputAmount<=staffMemeber.remaining_amount){
+    const input =e.target.value;
+    setInputAmount(input);
+    if(input > 0 && input<=prData.remaining_amount){
       setIsError(false);
-      // staffMemeber.remaining_amount= staffMemeber.remaining_amount - inputAmount;
-      digitalBahiChangeHandle(staffMemeber.remaining_amount - inputAmount)
-      setInputAmount(0);
-      updateReceiptNo(adminId).then((resp)=>{
-        setReceiptNo(resp);
-      })
     }
     else{
       setIsError(true);
     }
   }
+
+  const payhandle= ()=>{
+    if(inputAmount > 0 && inputAmount<=prData.remaining_amount){
+      setIsError(false);
+      paySalary({staffId:staffMemeber._id, session, month, inputAmount: prData.remaining_amount- inputAmount}).then((resp)=>{
+        if(resp.msg==="Success"){
+          prData.remaining_amount -= inputAmount; 
+          alert(`Payment of ${inputAmount} Successfully Done`);
+          forceUpdate();
+          // setInputAmount(0);
+          setShowReceipt(true);
+        }
+        else{
+          console.log("paySalary",resp);
+          setShowReceipt(false);
+        }
+      });
+    }
+    else{
+      setIsError(true);
+      setShowReceipt(false);
+    }
+  }
+
+  const handlePrint = useReactToPrint({
+    content: () => receiptRef.current,
+  });
   return (
     <>
     <div className="mt-4 shadow-md rounded-lg px-8 py-6  grid grid-cols-2 gap-6">
@@ -42,6 +70,14 @@ const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBah
         <p>{receiptNo}</p>
       </div>
       <div className="flex mb-4">
+        <label className="mb-1 mr-4 block font-bold text-gray-600 ">Session: </label>
+        <p>{session}</p>
+      </div>
+      <div className="flex mb-4">
+        <label className="mb-1 mr-4 block font-bold text-gray-600 ">Month: </label>
+        <p>{month}</p>
+      </div>
+      <div className="flex mb-4">
         <label htmlFor="fullName" className=" mb-1 mr-4 block font-bold text-gray-600 ">Full Name:</label>
         <span>{staffMemeber.fullName}</span>
       </div>
@@ -51,11 +87,11 @@ const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBah
       </div>
       <div className="flex mb-4">
         <label htmlFor="salary" className= " mb-1 mr-4 block font-bold text-gray-600">Salary:</label>
-        <span>₹ {staffMemeber.total_salary}</span>
+        <span>₹ {prData.deducted_salary.toFixed(2)}</span>
       </div>
       <div className="flex mb-4">
-        <label htmlFor="reamining_amount" className= " mb-1 mr-4 block font-bold text-gray-600">Reamaining Amount:</label>
-        <span>₹ {staffMemeber.remaining_amount}</span>
+        <label htmlFor="reamining_amount" className= " mb-1 mr-4 block font-bold text-gray-600">Remaining Amount:</label>
+        <span>₹ {prData.remaining_amount}</span>
       </div>
       <div>
         <div className="mb-4 flex items-center">
@@ -65,6 +101,7 @@ const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBah
               name="amount"
               value={inputAmount}
               min="0"
+              max={prData.deducted_salary.toFixed(2)}
               className="ml-4 rounded px-4 py-2"
               onChange={handleInputAmount}
               
@@ -74,17 +111,22 @@ const DigitalBahi = ({adminId, staffMemeber, digitalBahiChangeHandle, DigitalBah
             </button>
         </div>
       </div>
-        <div className='col-span-2 text-center'>
-          <button
-            type="submit"
-            // disabled={!isFormValid}
-            className="h-10 bg-green-600 hover:bg-green-800 text-white font-semibold px-12 rounded-full focus:outline-none" onClick={DigitalBahiHandleSubmit}
-          >
-            Submit
-          </button>
-
-        </div>
         {iserror && <p className='text-red-400 font-sm m-[20px]'>*Invalid Amount</p>}
+        {showReceipt && (
+          <div className='col-span-2 text-center'>
+            <button
+              onClick={handlePrint}
+              className="h-10 bg-green-600 hover:bg-green-800 text-white font-semibold px-12 rounded-full focus:outline-none" 
+            >
+              Print Reciept
+            </button>
+
+            <div className='mt-4'>
+              <PayrollReceipt payRollData={{schoolName, receiptNo, currentDate,session, month, name:staffMemeber.fullName, fatherName:staffMemeber.fatherName, salary: prData.deducted_salary.toFixed(2), remainingSalary:prData.remaining_amount, paymentAmount:inputAmount }} ref={receiptRef} />
+            </div>
+
+          </div>
+        )}
     </div>
     </>
   )

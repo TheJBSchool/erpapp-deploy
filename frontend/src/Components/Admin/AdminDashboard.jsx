@@ -117,7 +117,7 @@ const AdminDashboard = () => {
           {selectedItem === "myProfile" && <MyProfile adminData={adminData}/>    }
           {selectedItem === "attendace" && <Attendance adminId={adminData._id} />}
           {selectedItem === "fees" && <Fees adminId={adminData._id} schoolName={adminData.school_name} />}
-          {selectedItem === "payroll" && <Payroll adminId={adminData._id} />}
+          {selectedItem === "payroll" && <Payroll adminId={adminData._id} schoolName={adminData.school_name} />}
           {selectedItem === "syllabus" && <Syllabus adminId={adminData._id} />}
           {selectedItem === "timeTable" && <TimeTable adminId={adminData._id} />}
           {selectedItem === "circular" && <Circular adminId={adminData._id} />}
