@@ -110,7 +110,7 @@
     opacity: 0;
 }
 .drop-file-preview__item:hover{
-    background-color: rgba(0, 0, 0, 0.312);
+    background-color: rgba(31, 13, 13, 0.634);
     color: white;
     transition: opacity 0.3s ease;
 }

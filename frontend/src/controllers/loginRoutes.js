@@ -81,6 +81,17 @@ export const all_students = async (adminId)=> {
     return ans;
 }
 
+export const all_students_details = async (adminId)=> {
+    const res = await fetch(`${base}/students_details/${adminId}`, {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+    const ans = await res.json();
+    return ans;
+}
+
 export const studentUpdate = async (id, dataToUpdate) => {
     const res = await fetch(`${base}/studentUpdate/${id}`, {
         method: 'PATCH',
@@ -343,9 +354,9 @@ export const getTeacherTimeTable = async (adminId, teacherName) => {
 };
 
 
-export const saveUploads_lostAndFound = async (formData) => {
+export const saveUploads_lostAndFound = async (adminId, formData) => {
      try {
-        const response = await fetch(`${base}/lostFound`, {
+        const response = await fetch(`${base}/lostFound/${adminId}`, {
           method: 'POST',
           body: formData,
         });
@@ -362,7 +373,7 @@ export const saveUploads_lostAndFound = async (formData) => {
       }
 }
 
-export const fetchRecentItems = async ({adminId}) => {
+export const fetchRecentItems = async (adminId) => {
     try {
         const response = await fetch(`${base}/recentLostItem/${adminId}`, {
             method: 'GET',
@@ -381,10 +392,10 @@ export const fetchRecentItems = async ({adminId}) => {
     }
 };
 
-export const student_claim_req = async (adminId, Reqdata) => {
+export const claimItem= async (itemId, Reqdata) => {
     try {
-        const response = await fetch(`${base}/claimitem/${adminId}`, {
-            method: 'POST',
+        const response = await fetch(`${base}/claimItem/${itemId}`, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -400,6 +411,58 @@ export const student_claim_req = async (adminId, Reqdata) => {
         console.log('Error in send claim request : ' + error.message);
     }
 };
+
+export const approve_claimItem= async (itemId,stuId) => {
+    try {
+        const response = await fetch(`${base}/approve_claimItem/${itemId}/${stuId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }); 
+        if (response.ok) {
+            const data = await response.json();
+            return data; 
+        } else {
+            console.log('Faild to send request');
+        }
+    } catch (error) {
+        console.log('Error in send claim request : ' + error.message);
+    }
+};
+
+export const decline_claimItem= async (itemId,stuId) => {
+    try {
+        const response = await fetch(`${base}/decline_claimItem/${itemId}/${stuId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }); 
+        if (response.ok) {
+            const data = await response.json();
+            return data; 
+        } else {
+            console.log('Faild to send request');
+        }
+    } catch (error) {
+        console.log('Error in send claim request : ' + error.message);
+    }
+};
+
+export const deleteLostItem = async (id) => {
+    const res = await fetch(`${base}/deleteLostItem/${id}`, {
+        method: 'DELETE',
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+    if (!res.ok) {
+      throw new Error('Failed to delete student');
+    }
+    const ans = await res.json();
+    return ans;
+}
 
 export const createNewCircular = async(CircularData) =>{
     try {

@@ -124,6 +124,34 @@ router.get('/students/:id', async (req, res) => {
     }
 })
 
+router.get('/students_details/:id', async (req, res) => {
+  const adminId = req.params.id;
+  try {
+    const all_students = await Student.find({ underBy: adminId }).select('name _id rollno class section contact emergency_contact father_name address DOB');
+
+    // Create a map of students with their _id
+    const studentsMap = all_students.reduce((map, student) => {
+      map[student._id] = {
+        name: student.name,
+        rollno: student.rollno,
+        class: student.class,
+        section: student.section,
+        contact: student.contact,
+        emergency_contact: student.emergency_contact,
+        father_name: student.father_name,
+        address: student.address,
+        DOB: student.DOB,
+      };
+      return map;
+    }, {});
+
+    return res.status(201).json({ studentsMap, status: 201 });
+  } catch (e) {
+    return res.json({ error: e.message, status: 500 });
+  }
+});
+
+
 router.patch('/studentUpdate/:id', async (req, res) => {
     try {
         const stu_id = req.params.id;
@@ -573,24 +601,28 @@ router.get('/teachertimetable/:adminId/:teacher', async (req, res) => {
   }
 });
 
+router.use('/lostAndFound', express.static('lostAndFound'))
 
 //lost and found
 const storage = multer.diskStorage({
   destination: 'lostAndFound/', // specify the folder where files will be stored
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    cb(null,Date.now() + path.extname(file.originalname));
   },
 });
 const upload = multer({ storage: storage });
-router.post('/lostFound', upload.single('itemImg'), async (req, res) => {
+
+router.post('/lostFound/:adminId', upload.single('itemImg'), async (req, res) => {
+  const {adminId} = req.params;
   try {
-    const { itemDesc, claimBy } = req.body;
+    const { itemDesc } = req.body;
     const imageUrl = req.file.path;
+    const imgName = req.file.originalname;
     const newItem = new LostItem({
-      itemImg: req.file.filename,
+      underBy:adminId,
+      itemImg: imgName,
       imageUrl,
       itemDesc,
-      claimBy,
     });
 
     await newItem.save();
@@ -614,29 +646,17 @@ router.get('/recentLostItem/:adminId', async (req, res) => {
   }
 });
 
-router.post('/claimitem/:adminId', async (req, res) => {
-  const adminId = req.params.adminId;
+router.patch('/claimItem/:itemId', async (req, res) => {
+  const itemId = req.params.itemId;
   try {
-    const { itemId, claimBy } = req.body;
-
-    // Find the lost item by ID
-    const lostItem = await LostItem.find({underBy: adminId, _id:itemId});
+    const claimByData = req.body;
+    const lostItem = await LostItem.findOne({_id:itemId});
 
     if (!lostItem) {
       return res.status(404).json({ message: 'Lost item not found' });
     }
 
-    // Check if the student has already claimed the item
-    const existingClaim = lostItem.claimBy.find(claim => claim.student.ID.toString() === claimBy.student.ID.toString());
-
-    if (existingClaim) {
-      return res.status(400).json({ message: 'Student has already claimed this item' });
-    }
-
-    // Add the new claim to the array
-    lostItem.claimBy.push({ student: claimBy.student, claimMessage: claimBy.claimMessage });
-
-    // Save the updated item
+    lostItem.claimBy.push(claimByData);
     await lostItem.save();
 
     res.status(200).json({ message: 'Item claimed successfully' });
@@ -645,6 +665,81 @@ router.post('/claimitem/:adminId', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+router.patch('/approve_claimItem/:itemId/:stuId', async (req, res) => {
+  const itemId = req.params.itemId;
+  const stuId = req.params.stuId;
+
+  try {
+    const lostItem = await LostItem.findOne({ _id: itemId });
+
+    if (!lostItem) {
+      return res.status(404).json({ message: 'Lost item not found' });
+    }
+
+    // Find the claim in the array by student ID
+    const claim = lostItem.claimBy.find((c) => c.studentId.toString() === stuId);
+
+    if (!claim) {
+      return res.status(404).json({ message: 'Claim not found for the specified student' });
+    }
+
+    // Update the claim status to "Approved"
+    claim.status = 'Approved';
+
+    // Save the updated LostItem
+    await lostItem.save();
+
+    res.status(200).json({ message: 'Item claimed successfully' });
+  } catch (error) {
+    console.error('Backend Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.patch('/decline_claimItem/:itemId/:stuId', async (req, res) => {
+  const itemId = req.params.itemId;
+  const stuId = req.params.stuId;
+
+  try {
+    const lostItem = await LostItem.findOne({ _id: itemId });
+
+    if (!lostItem) {
+      return res.status(404).json({ message: 'Lost item not found' });
+    }
+
+    // Find the claim in the array by student ID
+    const claim = lostItem.claimBy.find((c) => c.studentId.toString() === stuId);
+
+    if (!claim) {
+      return res.status(404).json({ message: 'Claim not found for the specified student' });
+    }
+
+    // Update the claim status to "Approved"
+    claim.status = 'Declined';
+
+    // Save the updated LostItem
+    await lostItem.save();
+
+    res.status(200).json({ message: 'Item Declined Success' });
+  } catch (error) {
+    console.error('Backend Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.delete('/deleteLostItem/:id', async (req, res) => {
+    try {
+        const item_id = req.params.id;
+        const deleteItem = await LostItem.deleteOne({_id:item_id});
+        if (!deleteItem) {
+            return res.status(404).json({ message: "Student couldn't deleted" });
+        }
+        return res.status(201).json({ message:"Successfull Deleted", item:deleteItem });
+    } catch (e) {
+        return res.status(500).json({ error: e.message });
+    }
+})
 
 router.post('/createcircular', async(req,res) =>{
     try {
