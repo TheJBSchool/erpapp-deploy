@@ -113,7 +113,7 @@ export const StudentDashboard = () => {
           {selectedItem === "exam" && <Exam />}
           {selectedItem === "events" && <Events />}
           {selectedItem === "communication" && <Communication />}
-          {selectedItem === "fees" && <Fees />}
+          {selectedItem === "fees" && <Fees FeesData={studentData.feePayments} session={studentData.session} classs={studentData.class} adminId={studentData.underBy}/>}
           {selectedItem === "dashboard" && (
             <Notification notifications={allNotifications} />
           )}
