@@ -45,18 +45,22 @@ const Payroll = ({adminId, schoolName}) => {
         );
 
         //need to calculate the previous month remaining leaves is now current month's available leaves which is ReadOnly
-        let monthIndex = months.findIndex((month,ind)=>month=== payrollDropdown.month)
-        monthIndex--;
-
-        // console.log("monthInd",monthIndex);
         let prevMonthRemainingLeaves= 0;
-        if(monthIndex>=0){
-          let prevMonth = months[monthIndex];
-          if(sessionFound.months[prevMonth]){
-            const selectedPrevMonth = sessionFound.months[prevMonth];
-            prevMonthRemainingLeaves = selectedPrevMonth.remaining_leaves
+        if(sessionFound){
+
+          let monthIndex = months.findIndex((month,ind)=>month=== payrollDropdown.month)
+          monthIndex--;
+
+          // console.log("monthInd",monthIndex);
+          if(monthIndex>=0){
+            let prevMonth = months[monthIndex];
+            if(sessionFound.months[prevMonth]){
+              const selectedPrevMonth = sessionFound.months[prevMonth];
+              prevMonthRemainingLeaves = selectedPrevMonth.remaining_leaves
+            }
           }
         }
+        
 
         // console.log("prevMonthRemainingLeaves",prevMonthRemainingLeaves);
 
@@ -115,6 +119,24 @@ const Payroll = ({adminId, schoolName}) => {
       setNotValidTable(isTableValid(prData));
     }
   }, [prData]);
+
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    const getCurrentYear = () => {
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      const prevYear = currentYear - 1;
+
+      const currentYearOption = `${currentYear}-${nextYear.toString().slice(2)}`;
+      const nextYearOption = `${nextYear}-${(nextYear + 1).toString().slice(2)}`;
+      const prevYearOption = `${prevYear}-${currentYear.toString().slice(2)}`;
+
+      setOptions([prevYearOption, currentYearOption, nextYearOption]);
+    };
+
+    getCurrentYear();
+  }, []);
 
 
   // console.log("prData",prData);
@@ -354,9 +376,11 @@ const Payroll = ({adminId, schoolName}) => {
                   <select name="session" className='rounded p-1' value={payrollDropdown.session}
                     onChange={handleFormChange}>
                     <option value="">Select an option</option>
-                    <option value="2022-23">2022-23</option>
-                    <option value="2023-24">2023-24</option>
-                    <option value="2024-25">2024-25</option>
+                    {options.map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>  
                 <div className='flex  items-center'>

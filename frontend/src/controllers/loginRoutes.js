@@ -691,8 +691,8 @@ export const save_examTypes = async(obj) => {
     return ans;
 }
 
-export const get_subjects = async (adminId,clss)=> {
-    const res = await fetch(`${base}/getsubjects/${adminId}/${clss}`, {
+export const get_subjects = async (teacherId,clss)=> {
+    const res = await fetch(`${base}/getsubjects/${teacherId}/${clss}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
@@ -702,8 +702,8 @@ export const get_subjects = async (adminId,clss)=> {
     return ans;
 }
 
-export const get_examTypes = async (adminId,clss)=> {
-    const res = await fetch(`${base}/getexamtype/${adminId}/${clss}`, {
+export const get_examTypes = async (teacherId,clss)=> {
+    const res = await fetch(`${base}/getexamtype/${teacherId}/${clss}`, {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",

@@ -18,7 +18,13 @@ export const TeacherDashboard = () => {
   const [students, setStudents] = useState([]);
 
   useEffect(()=>{
-    setTeacherData(JSON.parse(localStorage.getItem("data")));
+    const dataa = JSON.parse(localStorage.getItem("data"))
+    setTeacherData(dataa);
+    all_students(dataa.underBy).then((resp) => {
+      // console.log(resp.all_students)
+      // console.log("dashboard",resp.all_students)
+      setStudents(resp.all_students);
+    })
     // console.log(teacherData)
   },[]);
  
@@ -27,11 +33,10 @@ export const TeacherDashboard = () => {
     if(localStorage.getItem("token")){ }
     else navigate('/');
 
-    all_students().then((resp) => {
-      // console.log(resp.all_students)
-      setStudents(resp.all_students);
-    })
+    
   }, [])
+
+  // console.log("teacherData",teacherData)
   return (
     <TeacherContext.Provider value={{ selectedItem, setSelectedItem }}>
 

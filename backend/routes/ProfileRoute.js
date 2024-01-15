@@ -991,22 +991,22 @@ router.post('/saveexamtype', async (req, res) => {
     }
 })
 
-router.get('/getsubjects/:adminId/:class', async (req, res) => { 
+router.get('/getsubjects/:teacherId/:class', async (req, res) => { 
   const clss = req.params.class;
-  const adminId = req.params.adminId;
+  const teacherId = req.params.teacherId;
   try {
-    const data = await Subject.find({underBy: adminId, class:clss});
+    const data = await Subject.find({underBy: teacherId, class:clss});
     return res.status(201).json(data);
   } catch (e) {
     return res.status(409).json({ error: e.message });
   }
 });
 
-router.get('/getexamtype/:adminId/:class', async (req, res) => { 
+router.get('/getexamtype/:teacherId/:class', async (req, res) => { 
   const clss = req.params.class;
-  const adminId = req.params.adminId;
+  const teacherId = req.params.teacherId;
   try {
-    const data = await ExamType.find({underBy:adminId, class:clss}); 
+    const data = await ExamType.find({underBy:teacherId, class:clss}); 
     return res.status(201).json(data);
   } catch (e) {
     return res.status(409).json({ error: e.message });

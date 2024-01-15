@@ -11,7 +11,7 @@ const subjectSchema = new mongoose.Schema({
             teacher : String   
         }
     ],
-    underBy: {
+    underBy: { // underby teacher
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },

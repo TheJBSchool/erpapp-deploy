@@ -40,12 +40,14 @@ const SetResult = ({studentNames, subjectRows, examRows, teacherData}) => {
       const currentYear = new Date().getFullYear();
       const nextYear = currentYear + 1;
       const prevYear = currentYear - 1;
+      const prevprevYear = currentYear - 2;
 
       const currentYearOption = `${currentYear}-${nextYear.toString().slice(2)}`;
       const nextYearOption = `${nextYear}-${(nextYear + 1).toString().slice(2)}`;
       const prevYearOption = `${prevYear}-${currentYear.toString().slice(2)}`;
+      const dayBeforePrevYearOption = `${prevprevYear}-${prevYear.toString().slice(2)}`;
 
-      setOptions([prevYearOption, currentYearOption, nextYearOption]);
+      setOptions([dayBeforePrevYearOption, prevYearOption, currentYearOption, nextYearOption]);
     };
 
     getCurrentYear();

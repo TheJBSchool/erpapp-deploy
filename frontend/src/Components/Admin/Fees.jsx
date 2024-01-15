@@ -137,6 +137,24 @@ const Fees = ({adminId, schoolName}) => {
     }
   },[stuSelected]);
 
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    const getCurrentYear = () => {
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      const prevYear = currentYear - 1;
+
+      const currentYearOption = `${currentYear}-${nextYear.toString().slice(2)}`;
+      const nextYearOption = `${nextYear}-${(nextYear + 1).toString().slice(2)}`;
+      const prevYearOption = `${prevYear}-${currentYear.toString().slice(2)}`;
+
+      setOptions([prevYearOption, currentYearOption, nextYearOption]);
+    };
+
+    getCurrentYear();
+  }, []);
+
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
@@ -346,9 +364,9 @@ const Fees = ({adminId, schoolName}) => {
         total_acdm_fee: currFee.academic_fee/4,
         acdm_fee:stuSelected.feePayments[quater].acdm_fee,
         late_fee:lateFeeInput,
-        totalToBePaid: stuSelected.feePayments[quater].acdm_fee + lateFeeInput,
+        totalToBePaid: parseFloat(stuSelected.feePayments[quater].acdm_fee) + parseFloat(lateFeeInput),
         paymentAmount: paymentAmount,
-        remainingAmount: stuSelected.feePayments[quater].acdm_fee + lateFeeInput-paymentAmount
+        remainingAmount: parseFloat(stuSelected.feePayments[quater].acdm_fee) + parseFloat(lateFeeInput-paymentAmount)
       }
 
       if(stuSelected.feePayments[quater].adm_fee){
@@ -550,8 +568,11 @@ const Fees = ({adminId, schoolName}) => {
                   <select name="session" className='rounded p-1' value={selectedSession}
                     onChange={(e) => setSelectedSession(e.target.value)}>
                     <option value="">Select an option</option>
-                    <option value="2022-23">2022-23</option>
-                    <option value="2023-24">2023-24</option>
+                    {options.map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>
                   <div className='p-8   rounded-lg w-fit'>
@@ -722,8 +743,11 @@ const Fees = ({adminId, schoolName}) => {
                     <label htmlFor='session' className="block mb-2">Session:</label>
                     <select id="session" className="w-full px-4 py-2 border rounded-lg " name="session" value={formData.session} onChange={handleInputChange} required>
                         <option value="">Select an option</option>
-                        <option value="2022-23">2022-23</option>
-                        <option value="2023-24">2023-24</option>
+                        {options.map((option, index) => (
+                          <option key={index} value={option}>
+                            {option}
+                          </option>
+                        ))}
                         {/* <option value="E">E </option> */}
                     </select>
                   </div>

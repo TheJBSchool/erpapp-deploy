@@ -281,7 +281,7 @@ const ManageTeachers = ({adminId}) => {
                   success={success}
                 />
               </>
-            )};
+            )}
           </div>
         ) : (showExistingTeachers ? (
           <>

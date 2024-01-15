@@ -63,6 +63,10 @@ const PayrollReceipt = React.forwardRef(({ payRollData }, ref) => {
           <p>₹ {remainingSalary-paymentAmount}</p>
         </div>
       </div>
+      <div className='flex flex-col items-end mb-10 mt-4'>
+        <p className="mt-4">Signature</p>
+        <p>{schoolName}</p>
+      </div>
     </div>
   );
 });

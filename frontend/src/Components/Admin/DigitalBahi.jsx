@@ -1,24 +1,19 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {getReceiptNo,updateReceiptNo, paySalary} from '../../controllers/loginRoutes.js';
+import {getReceiptNo, updateReceiptNo, paySalary} from '../../controllers/loginRoutes.js';
 import { useReactToPrint } from 'react-to-print';
 import PayrollReceipt from './PayrollReceipt.jsx';
 
-const DigitalBahi = ({adminId,schoolName, session, month, staffMemeber, prData, digitalBahiChangeHandle}) => {
+const DigitalBahi = ({adminId,schoolName, session, month, staffMemeber, prData}) => {
   const receiptRef = useRef();
-  const [, updateState] = React.useState();
-  const forceUpdate = React.useCallback(() => updateState({}), []);
-
   const [receiptNo, setReceiptNo] = useState(0);
   const [currentDate, setCurrentDate] = useState('');
   const [inputAmount, setInputAmount] = useState(0);
   const [iserror, setIsError] = useState(false);
   const [showReceipt, setShowReceipt]= useState(false);
+  const [receiptDataToShow, setReceiptDataToShow] = useState({});
   useEffect(() => {
     const formattedDate = new Date().toLocaleDateString('en-GB');
     setCurrentDate(formattedDate);
-    getReceiptNo(adminId).then((resp) => {
-      setReceiptNo(resp);
-    })
   },[]);
 
   const handleInputAmount = (e)=>{
@@ -37,10 +32,17 @@ const DigitalBahi = ({adminId,schoolName, session, month, staffMemeber, prData, 
       setIsError(false);
       paySalary({staffId:staffMemeber._id, session, month, inputAmount: prData.remaining_amount- inputAmount}).then((resp)=>{
         if(resp.msg==="Success"){
+          updateReceiptNo(adminId).then((res)=>{
+            if(res){
+              setReceiptNo(res);
+              const receiptDataDigitalBahi = {schoolName, receiptNo:res, currentDate,session, month, name:staffMemeber.fullName, fatherName:staffMemeber.fatherName, salary: prData.deducted_salary.toFixed(2), remainingSalary:prData.remaining_amount, paymentAmount:inputAmount }
+              setReceiptDataToShow(receiptDataDigitalBahi);
+            }
+          })
+
           prData.remaining_amount -= inputAmount; 
+          setInputAmount(0);
           alert(`Payment of ${inputAmount} Successfully Done`);
-          forceUpdate();
-          // setInputAmount(0);
           setShowReceipt(true);
         }
         else{
@@ -122,7 +124,7 @@ const DigitalBahi = ({adminId,schoolName, session, month, staffMemeber, prData, 
             </button>
 
             <div className='mt-4'>
-              <PayrollReceipt payRollData={{schoolName, receiptNo, currentDate,session, month, name:staffMemeber.fullName, fatherName:staffMemeber.fatherName, salary: prData.deducted_salary.toFixed(2), remainingSalary:prData.remaining_amount, paymentAmount:inputAmount }} ref={receiptRef} />
+              <PayrollReceipt payRollData={receiptDataToShow} ref={receiptRef} />
             </div>
 
           </div>

@@ -37,20 +37,20 @@ const Result = ({teacherData}) => {
         // console.log("teacher name resp",resp)
         setTeacherNames(resp);
     })
-    get_subjects(teacherData.class_teacher).then((resp)=>{
+    get_subjects(teacherData._id,teacherData.class_teacher).then((resp)=>{
       if(resp){
         setSubjectRows(resp[0]?.subjects);
       }
     })
 
-    get_examTypes(teacherData.class_teacher).then((resp)=>{
+    get_examTypes(teacherData._id,teacherData.class_teacher).then((resp)=>{
       // console.log(resp[0].exams);
       if(resp){
         setExamRows(resp[0]?.exams);
       }
     })
 
-    get_studentsName(teacherData.class_teacher).then((resp)=>{
+    get_studentsName(teacherData.underBy, teacherData.class_teacher).then((resp)=>{
       setStudentNames(resp);
     })
 
@@ -128,7 +128,7 @@ const Result = ({teacherData}) => {
     const obj = {
         class : teacherData.class_teacher, 
         subjects : subjectRows,
-        underBy: teacherData.underBy
+        underBy: teacherData._id
     }
     // console.log("subject Submit", obj)
     toggleLoading(true);
@@ -150,7 +150,7 @@ const Result = ({teacherData}) => {
     const obj = {
         class : teacherData.class_teacher,
         exams : examRows,
-        underBy: teacherData.underBy
+        underBy: teacherData._id
     }
     // console.log("Exam Submit", obj)
     toggleLoading(true);

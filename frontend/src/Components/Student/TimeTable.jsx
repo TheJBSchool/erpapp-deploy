@@ -3,14 +3,14 @@ import { bgcolor2 } from "../Home/custom.js";
 import { getTimetableByClass, saveTimetable } from '../../controllers/loginRoutes.js';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const TimeTable = ({stu_class, stu_section}) => {
+const TimeTable = ({adminId, stu_class, stu_section}) => {
   const [class_timeTable, setClass_timeTable]= useState();
   useEffect(()=>{
-    getTimetableByClass(stu_class+stu_section).then((resp)=>{
+    getTimetableByClass(adminId, stu_class+stu_section).then((resp)=>{
       setClass_timeTable(resp);
     })
   },[])
-  console.log("class_timeTable",class_timeTable)
+  // console.log("class_timeTable",class_timeTable)
 
   const classNames = [
     'Pre-Nursery', 'Nursery', 'LKG', 'UKG',

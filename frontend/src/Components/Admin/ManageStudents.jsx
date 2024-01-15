@@ -273,7 +273,7 @@ const ManageStudent = ({adminId}) => {
                     formSubmit={formSubmit}
                   />
                 </>
-              )};
+              )}
             </div>
           ) : showExistingStudents ? (<>
             <div className="mt-12 p-4 bg-gray-100 rounded-lg">

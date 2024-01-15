@@ -108,7 +108,7 @@ export const StudentDashboard = () => {
           {selectedItem === "syllabus" && <Syllabus />}
           {selectedItem === "lostFound" && <LostAndFound studentData={studentData}/>}
 
-          {selectedItem === "timeTable" && <TimeTable stu_class={studentData.class} stu_section={studentData.section}/>}
+          {selectedItem === "timeTable" && <TimeTable adminId={studentData.underBy} stu_class={studentData.class} stu_section={studentData.section}/>}
           {selectedItem === "circular" && <Circular circular={allStuCirculars} />}
           {selectedItem === "exam" && <Exam />}
           {selectedItem === "events" && <Events />}

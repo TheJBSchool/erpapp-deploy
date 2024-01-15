@@ -1,6 +1,24 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 const StudentForm = ({ formData, handleFormChange, formSubmit}) => {
+
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    const getCurrentYear = () => {
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      const prevYear = currentYear - 1;
+
+      const currentYearOption = `${currentYear}-${nextYear.toString().slice(2)}`;
+      const nextYearOption = `${nextYear}-${(nextYear + 1).toString().slice(2)}`;
+      const prevYearOption = `${prevYear}-${currentYear.toString().slice(2)}`;
+
+      setOptions([prevYearOption, currentYearOption, nextYearOption]);
+    };
+
+    getCurrentYear();
+  }, []);
 
   const getClassOptions = () => {
     if (formData.group === 'Pre') {
@@ -68,8 +86,11 @@ const StudentForm = ({ formData, handleFormChange, formSubmit}) => {
             </label>
             <select id="session" className="w-full border rounded-md py-2 px-3 focus:outline-none  focus:border-red-200" name="session" value={formData.session} onChange={handleFormChange} required>
                 <option value="">Select an option</option>
-                <option value="2022-23">2022-23</option>
-                <option value="2023-24">2023-24</option>
+                {options.map((option, index) => (
+                <option key={index} value={option}>
+                    {option}
+                </option>
+                ))}
             </select>
             </div>
 
