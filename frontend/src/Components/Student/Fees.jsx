@@ -48,17 +48,17 @@ const Fees = ({ FeesData,session,classs, adminId }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.keys(FeesData).map((quarter, index) => (
+                                {FeesData && Object.keys(FeesData).map((quarter, index) => (
                                     <tr key={index} className={FeesData[quarter].isPaid ? 'bg-green-100' : 'bg-red-100'}>
                                         <td className="text-center p-4 border-2 border-gray-300 font-bold">{quarter}</td>
                                         <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter]?.adm_fee || '-'}</td>
                                         <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].acdm_fee}</td>
-                                        <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].fee_applied.toString()}</td>
+                                        <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].fee_applied?.toString()}</td>
                                         <td className={`text-center p-4 border-2 border-gray-300 ${FeesData[quarter].isPaid ? 'text-green-600' : 'text-red-600'}`}>
                                             {FeesData[quarter].isPaid.toString()}
                                         </td>
                                         <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].late_fee}</td>
-                                        <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].late_fee_ispaid.toString()}</td>
+                                        <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].late_fee_ispaid?.toString()}</td>
                                         {/* <td className="text-center p-4 border-2 border-gray-300">{FeesData[quarter].pending_fee}</td> */}
                                     </tr>
                                 ))}
@@ -69,60 +69,67 @@ const Fees = ({ FeesData,session,classs, adminId }) => {
                 {menu==="classFee" && (
                     <div className="border-2 border-blue-300 rounded-lg p-4">
                         <h1 className="text-xl font-bold mb-2">Fee Details</h1>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <table className="table-auto">
-                                    <tbody>
-                                        <tr>
-                                            <td className="font-semibold">Class:</td>
-                                            <td>{feeDetails.class}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Session:</td>
-                                            <td>{feeDetails.session}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Academic Fee:</td>
-                                            <td> ₹ {feeDetails.academic_fee}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Admission Fee:</td>
-                                            <td> ₹ {feeDetails.adm_fee}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        {feeDetails ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <table className="table-auto">
+                                        <tbody>
+                                            <tr>
+                                                <td className="font-semibold">Class:</td>
+                                                <td>{feeDetails.class}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Session:</td>
+                                                <td>{feeDetails.session}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Academic Fee:</td>
+                                                <td> ₹ {feeDetails.academic_fee}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Admission Fee:</td>
+                                                <td> ₹ {feeDetails.adm_fee}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <table className="table-auto">
+                                        <tbody>
+                                            <tr>
+                                                <td className="font-semibold">Late Fee:</td>
+                                                <td>₹ {feeDetails.late_fee}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Late Fee Applied after :</td>
+                                                <td>{feeDetails.late_fee_x} days</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Quater 1 Date:</td>
+                                                <td>{new Date(feeDetails.date1).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Quater 2 Date:</td>
+                                                <td>{new Date(feeDetails.date2).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Quater 3 Date:</td>
+                                                <td>{new Date(feeDetails.date3).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="font-semibold">Quater 4 Date:</td>
+                                                <td>{new Date(feeDetails.date4).toLocaleString()}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+                        ): (
                             <div>
-                                <table className="table-auto">
-                                    <tbody>
-                                        <tr>
-                                            <td className="font-semibold">Late Fee:</td>
-                                            <td>₹ {feeDetails.late_fee}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Late Fee Applied after :</td>
-                                            <td>{feeDetails.late_fee_x} days</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Quater 1 Date:</td>
-                                            <td>{new Date(feeDetails.date1).toLocaleString()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Quater 2 Date:</td>
-                                            <td>{new Date(feeDetails.date2).toLocaleString()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Quater 3 Date:</td>
-                                            <td>{new Date(feeDetails.date3).toLocaleString()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="font-semibold">Quater 4 Date:</td>
-                                            <td>{new Date(feeDetails.date4).toLocaleString()}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <p className='font-bold p-2 text-red-500'>Fee is yet to set by Admin !!!</p>
                             </div>
-                        </div>
+                        )}
+                        
                     </div>
                 )}
             </div>

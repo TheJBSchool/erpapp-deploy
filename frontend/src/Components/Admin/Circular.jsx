@@ -62,7 +62,7 @@ const Circular = ({adminId}) => {
     if(newCircular.target && newCircular.title && newCircular.description){
       toggleLoading(true);
       if(isEdit){
-        editCircular(newCircular._id, newCircular).then((resp)=>{
+        editCircular(newCircular._id,adminId, {underBy:adminId, ...newCircular}).then((resp)=>{
             if (resp.status !== 201) {
               setTempNote("Can't Edit the Circular");
             } 
@@ -80,7 +80,7 @@ const Circular = ({adminId}) => {
             setCreateCircularBtn(false);
           });
       } else{
-        createNewCircular(newCircular).then((resp)=>{
+        createNewCircular({underBy:adminId, ...newCircular}).then((resp)=>{
           if (resp.status !== 201) {
             setTempNote("Can't Create the Circular");
           } 
@@ -114,7 +114,7 @@ const Circular = ({adminId}) => {
   const handleDelete = (id)=>{
     let confirmation = window.confirm(`Are you sure you want to delete this circular?`);
     if (confirmation){
-      deleteCircular(id).then((resp)=>{
+      deleteCircular(id,adminId).then((resp)=>{
         toggleLoading(false);
         setAllCirculars(resp.circulars);
       }).catch((error) => {

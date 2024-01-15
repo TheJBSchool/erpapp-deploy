@@ -763,30 +763,32 @@ router.get('/allcirculars/:adminId', async (req, res) => {
 })
 
 
-router.patch('/editCircular/:id', async (req, res) => {
+router.patch('/editCircular/:id/:adminId', async (req, res) => {
     try {
         const circular_id = req.params.id;
         const dataToUpdate = req.body;
+        const adminId = req.params.adminId;
         const updateCircular = await Circular.updateOne({_id:circular_id},dataToUpdate);
         // console.log("updatedCircular",updateCircular);
         if (updateCircular.nModified === 0) {
             return res.status(404).json({ error: "Student not updated" });
         }
-        const circulars = await Circular.find();
+        const circulars = await Circular.find({underBy:adminId});
         return res.status(201).json({ circulars, status: 201 });
     } catch (e) {
         return res.status(500).json({ error: e.message });
     }
 })
 
-router.delete('/deleteCircular/:id', async (req, res) => {
+router.delete('/deleteCircular/:id/:adminId', async (req, res) => {
     try {
         const circular_id = req.params.id;
+        const adminId = req.params.adminId;
         const deleteCircular = await Circular.deleteOne({_id:circular_id});
         if (!deleteCircular) {
             return res.status(404).json({ error: "Student couldn't deleted" });
         }
-        const circulars = await Circular.find();
+        const circulars = await Circular.find({underBy:adminId});
         return res.status(200).json({ circulars, status: 200 });
     } catch (e) {
         console.log(e);

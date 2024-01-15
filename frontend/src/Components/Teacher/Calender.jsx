@@ -118,8 +118,8 @@ const Calendar = ({ students }) => {
         </div>
         {selectedStudents && (
           <div className='text-md w-4/12'>
-            {selectedStudents.map((selectedStudent) => (  
-            <div className='shadow-md mb-4 p-4'>
+            {selectedStudents.map((selectedStudent,ind) => (  
+            <div key={ind} className='shadow-md mb-4 p-4'>
               <h1 className='font-bold'>{selectedStudent.name}'s Bithday</h1>
               <hr className='p-[0.6px] mb-4 bg-slate-500'/>
               <div>

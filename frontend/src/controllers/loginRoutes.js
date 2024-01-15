@@ -497,8 +497,8 @@ export const all_circulars = async (adminId)=> {
     return ans;
 }
 
-export const editCircular = async (id, dataToUpdate) => {
-    const res = await fetch(`${base}/editCircular/${id}`, {
+export const editCircular = async (id,adminId, dataToUpdate) => {
+    const res = await fetch(`${base}/editCircular/${id}/${adminId}`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json",
@@ -508,8 +508,8 @@ export const editCircular = async (id, dataToUpdate) => {
     const ans = await res.json();
     return ans;
 }
-export const deleteCircular = async (id) => {
-    const res = await fetch(`${base}/deleteCircular/${id}`, {
+export const deleteCircular = async (id,adminId) => {
+    const res = await fetch(`${base}/deleteCircular/${id}/${adminId}`, {
         method: 'DELETE',
         headers: {
             "Content-Type": "application/json",

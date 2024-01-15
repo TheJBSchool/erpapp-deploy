@@ -41,7 +41,7 @@ export const TeacherDashboard = () => {
     <TeacherContext.Provider value={{ selectedItem, setSelectedItem }}>
 
       <div className="flex flex-col h-full pt-4 px-12">
-        <Header />
+        {teacherData && teacherData.underBy && <Header adminId={teacherData.underBy} />}
 
         <div className="h-full w-full flex p-5 justify-between gap-7">
           <TeacherLeftPanel teacherData={teacherData}/>

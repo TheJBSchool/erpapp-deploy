@@ -66,7 +66,7 @@ export const StudentDashboard = () => {
     <StudentContext.Provider value={{ selectedItem, setSelectedItem }}>
 
       <div className="flex flex-col h-full pt-4 px-12">
-        <Header />
+        {studentData && studentData.underBy && <Header adminId={studentData.underBy} />}
 
         <div className="h-full w-full flex p-5 justify-between gap-7">
           <StudentLeftPanel name={studentData.name} id={studentData.ID}/>
